@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package plugin.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
+
+// Input is one thing to collect, as the Platform defined it for this kind.
+message Input {
+  string name = 1;
+  // Platform.spec.inputs[name].<kind> as JSON.
+  bytes impl = 2;
+}
+
+service CollectorService {
+  // Open establishes the session for an endpoint. gino calls it before the first Collect for an
+  // endpoint and again after a Collect returns UNAVAILABLE. Credentials are passed whole; the
+  // plugin touches no mount.
+  rpc Open(OpenRequest) returns (OpenResponse);
+  // Collect runs one input on an open session and returns every payload it produced.
+  rpc Collect(CollectRequest) returns (CollectResponse);
+  // Close tears a session down: the endpoint left the assignment, or gino is shutting down.
+  // Best effort; gino does not wait long.
+  rpc Close(CloseRequest) returns (CloseResponse);
+}
+
+message OpenResponse {}
+
+message OpenRequest {
+  // apis/v1 WorkerAssignmentEndpoint as JSON: identity, resolved metadata, host, platform name.
+  bytes endpoint = 1;
+  // the credential Secret's keys as the worker mounted them: username, password, privateKey,
+  // token, ca.crt, tls.crt, tls.key, plugins job to know what it cares about.
+  map<string, bytes> credentials = 2;
+}
+
+message CollectRequest {
+  // the session; the same bytes as Open. The plugin keys sessions by namespace/name.
+  bytes endpoint = 1;
+  Input input = 2;
+}
+
+// Collected is one payload out of an input; an input may produce several (one per command,
+// request or probe).
+message Collected {
+  string name = 1;
+  bytes payload = 2;
+  // when the data is from, if the plugin knows better than gino (a device timestamp). Unset
+  // means the time gino handed out the batch.
+  google.protobuf.Timestamp collected_at = 3;
+  // set when this part failed on a session that is otherwise fine (the device rejected the
+  // command, for example). gino does not publish it and logs error; the other parts still publish.
+  string error = 4;
+}
+
+message CollectResponse {
+  repeated Collected collected = 1;
+}
+
+message CloseRequest {
+  bytes endpoint = 1;
+}
+
+message CloseResponse {}

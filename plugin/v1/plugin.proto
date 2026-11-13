@@ -1,0 +1,55 @@
+// gino plugin contract, v1.
+//
+// A plugin is a binary gino starts in its own pod and talks to over a unix socket (path in the
+// GINO_PLUGIN_SOCKET env var). Every collector is a plugin, gino's own included: the runtime owns
+// the assignment, the schedule, publishing and retry pacing, the plugin owns sessions and how to
+// talk to devices. A pipeline chooses a plugin by choosing a worker image.
+//
+// Errors ride on gRPC status, not on message fields:
+//   OK                                        collected / transformed
+//   INVALID_ARGUMENT, FAILED_PRECONDITION,
+//   INTERNAL                                  this request failed; gino backs off this input
+//                                             (collector) or sends the message to the fail
+//                                             stream (transformer) and carries on
+//   UNAVAILABLE (Collect)                     the endpoint's session is lost; gino Opens again
+//                                             before the next Collect for that endpoint
+//   transport error, or Ping failing          the plugin is dead; gino restarts it
+//
+// Logs: write JSON lines to stderr ({"level":..,"msg":..,...}); gino re-emits them through its
+// own logger tagged with the plugin's name. Nothing on stdout is read.
+//
+// Data vs protocol: proto carries the protocol (services, payloads, timestamps, fn chains). Gino's
+// own data -- the endpoint, an input's implementation -- crosses as JSON bytes of the sdk's Go
+// types (apis/v1), so there is one schema for the CRD, the message bus and the plugin boundary.
+// Go plugins unmarshal into those types; others read the CRD's documented shape.
+syntax = "proto3";
+
+package plugin.v1;
+
+option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
+
+enum Service {
+  SERVICE_UNSPECIFIED = 0;
+  SERVICE_COLLECTOR = 1;
+  SERVICE_TRANSFORMER = 2;
+  SERVICE_ENRICHER = 3;
+  SERVICE_LOADER = 4;
+}
+
+service PluginService {
+  rpc Ping(PingRequest) returns (PingResponse);
+  rpc Shutdown(ShutdownRequest) returns (ShutdownResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {
+  string version = 1;
+  string plugin_name = 2;
+  string plugin_version = 3;
+  repeated Service services = 4;
+}
+
+message ShutdownRequest {}
+
+message ShutdownResponse {}

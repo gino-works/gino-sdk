@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package plugin.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
+
+// TransformerService turns a raw payload into structured data. Stateless; one call per message.
+service TransformerService {
+  rpc Transform(TransformRequest) returns (TransformResponse);
+}
+
+message TransformRequest {
+  // apis/v1 WorkerAssignmentEndpoint as JSON; carries platformName, so there is no separate ref.
+  bytes endpoint = 1;
+  string input = 2; // Input.name
+  string name = 3; // Collected.name
+  bytes payload = 4;
+  google.protobuf.Timestamp collected_at = 5;
+  repeated string fn = 6; // Platform.spec.transform[input], in order
+}
+
+message TransformResponse {
+  bytes data = 1; // JSON
+}

@@ -1,0 +1,161 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.23.0
+  name: platforms.gino.io
+spec:
+  group: gino.io
+  names:
+    kind: Platform
+    listKind: PlatformList
+    plural: platforms
+    shortNames:
+    - gplat
+    singular: platform
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          Platform is the way to configure available inputs for each vendor/profile/platform. This data
+          is given to workers to know how to collect things from their target Endpoints.
+          Short name gplat -> "gino platform".
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PlatformSpec is the spec for a Platform resource.
+            properties:
+              inputs:
+                additionalProperties:
+                  description: PlatformInput defines an input for this platform.
+                  properties:
+                    cli:
+                      description: Cli is the cli flavor of input.
+                      properties:
+                        commands:
+                          description: |-
+                            Commands are all run, in order, on the endpoint's session as one unit. Their outputs are
+                            handed to the transform together, keyed by name.
+                          items:
+                            description: CliCommand is a single command/input to a
+                              cli device.
+                            properties:
+                              input:
+                                description: Input -- the actual input sent to the
+                                  device.
+                                type: string
+                              name:
+                                description: Name -- name that transformers read to
+                                  map to a transform.
+                                type: string
+                            required:
+                            - input
+                            - name
+                            type: object
+                          minItems: 1
+                          type: array
+                          x-kubernetes-list-type: atomic
+                      required:
+                      - commands
+                      type: object
+                    http:
+                      description: HTTP is the http flavor of input.
+                      type: object
+                    tcp:
+                      description: TCP is the tcp flavor of input.
+                      properties:
+                        probes:
+                          description: Probes are all run, in order, against the endpoint.
+                          items:
+                            description: TCPProbe holds data about a tcp probe.
+                            properties:
+                              port:
+                                maximum: 65535
+                                minimum: 1
+                                type: integer
+                            required:
+                            - port
+                            type: object
+                          minItems: 1
+                          type: array
+                          x-kubernetes-list-type: atomic
+                      required:
+                      - probes
+                      type: object
+                  type: object
+                  x-kubernetes-validations:
+                  - message: Exactly one input type must be specified
+                    rule: '(has(self.cli) ? 1 : 0) + (has(self.http) ? 1 : 0) == 1'
+                description: Inputs define the inputs that this platform supports.
+                type: object
+              match:
+                description: Match defines what vendor/platform/profile endpoints
+                  this Platform targets.
+                properties:
+                  platform:
+                    description: Platform is the name of the platform to match on
+                      -- wildcard is allowed ("*").
+                    type: string
+                  profile:
+                    description: Profile is the name of the profile to match on --
+                      wildcard is allowed ("*").
+                    type: string
+                  vendor:
+                    description: Vendor is the name of the vendor to match on.
+                    type: string
+                required:
+                - platform
+                - profile
+                - vendor
+                type: object
+              transform:
+                additionalProperties:
+                  items:
+                    description: PlatformTransform holds information about how to
+                      transform a given input.
+                    properties:
+                      fn:
+                        type: string
+                    type: object
+                    x-kubernetes-validations:
+                    - message: Exactly one transform type must be specified
+                      rule: '(has(self.fn) ? 1 : 0) == 1'
+                  type: array
+                description: |-
+                  Transform defines how to transform inputs for this platform. Transforms are executed in order
+                  of the list of PlatformTransform for the given input.
+                type: object
+            required:
+            - inputs
+            - match
+            - transform
+            type: object
+          status:
+            description: PlatformStatus is the status for a Platform resource.
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

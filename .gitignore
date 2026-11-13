@@ -1,0 +1,9 @@
+# macos stuff
+.DS_Store
+*/.DS_Store
+
+# private dir for notes and such
+.private/
+
+# editor things
+.ropeproject

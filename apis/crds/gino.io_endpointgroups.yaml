@@ -1,0 +1,241 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.23.0
+  name: endpointgroups.gino.io
+spec:
+  group: gino.io
+  names:
+    kind: EndpointGroup
+    listKind: EndpointGroupList
+    plural: endpointgroups
+    shortNames:
+    - gepg
+    singular: endpointgroup
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          EndpointGroup is an object that holds information about a group of gino endpoints.
+          Short name gepg -> "gino endpoint group".
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EndpointGroupSpec is the spec for an EndpointGroup resource.
+            properties:
+              cluster:
+                description: Cluster is the name of the cluster that collection is
+                  done for on this endpoint.
+                type: string
+              credentials:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Credentials names, per collector kind, the Secret in the endpoint's own namespace holding
+                  the credentials workers of that kind use. Workers run in the endpoint's namespace and
+                  Locations replicate secrets into it, so only a name is needed. Typically set once on a group
+                  and inherited. Its the workers responsibility to know which key it wants (i.e. "token").
+                type: object
+              disableCollection:
+                description: DisableCollection ensures no workers are spawned for
+                  this endpoint.
+                type: boolean
+              interfaceTags:
+                description: |-
+                  InterfaceTags holds a list of InterfaceTag used to associate interfaces w/ tag data. Tags
+                  are appended to in resolution, so last match wins when actually using these downstream.
+                items:
+                  description: InterfaceTag holds interface matching -> tag data.
+                  properties:
+                    match:
+                      description: InterfaceTagMatch selects interfaces; every set
+                        field must match (AND). At least one is required.
+                      properties:
+                        description:
+                          description: Description is a Go regex matched against the
+                            interface description.
+                          maxLength: 256
+                          type: string
+                        name:
+                          description: Name is a Go regex matched against the interface
+                            name.
+                          maxLength: 256
+                          type: string
+                      type: object
+                      x-kubernetes-validations:
+                      - message: at least one of name or description must be set
+                        rule: has(self.name) || has(self.description)
+                    tags:
+                      additionalProperties:
+                        type: string
+                      type: object
+                  required:
+                  - match
+                  - tags
+                  type: object
+                type: array
+                x-kubernetes-list-type: atomic
+              platform:
+                description: Platform is the name of the platform, same idea as Vendor.
+                  This is optional.
+                type: string
+              profile:
+                description: |-
+                  Profile is the profile assigned to the endpoint, this is the final widget for informing the
+                  workers how to interact with this Endpoint.
+                type: string
+              selector:
+                description: Selector picks the Endpoints this group's template is
+                  applied to. Empty selects nothing.
+                properties:
+                  endpoints:
+                    description: Endpoints selects by Endpoint labels.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector
+                          requirements. The requirements are ANDed.
+                        items:
+                          description: |-
+                            A label selector requirement is a selector that contains values, a key, and an operator that
+                            relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector
+                                applies to.
+                              type: string
+                            operator:
+                              description: |-
+                                operator represents a key's relationship to a set of values.
+                                Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: |-
+                                values is an array of string values. If the operator is In or NotIn,
+                                the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                the values array must be empty. This array is replaced during a strategic
+                                merge patch.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: atomic
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                          map is equivalent to an element of matchExpressions, whose key field is "key", the
+                          operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                    x-kubernetes-map-type: atomic
+                  locations:
+                    description: Locations selects by Location labels.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector
+                          requirements. The requirements are ANDed.
+                        items:
+                          description: |-
+                            A label selector requirement is a selector that contains values, a key, and an operator that
+                            relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector
+                                applies to.
+                              type: string
+                            operator:
+                              description: |-
+                                operator represents a key's relationship to a set of values.
+                                Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: |-
+                                values is an array of string values. If the operator is In or NotIn,
+                                the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                the values array must be empty. This array is replaced during a strategic
+                                merge patch.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: atomic
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                          map is equivalent to an element of matchExpressions, whose key field is "key", the
+                          operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                    x-kubernetes-map-type: atomic
+                required:
+                - endpoints
+                - locations
+                type: object
+                x-kubernetes-validations:
+                - message: both locations and endpoints selectors must be set; use
+                    {} to select all
+                  rule: has(self.locations) && has(self.endpoints)
+              tags:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Tags hold additional k:v data for the endpoint. These are not used for selection (thats what
+                  the regular labels are for) but instead for expressing additional context about the endpoint.
+                type: object
+              vendor:
+                description: |-
+                  Vendor is the name of the vendor, this drives association w/ Platform cr for informing
+                  workers how to talk to this Endpoint.
+                type: string
+              weight:
+                default: 128
+                description: Weight is used to decide order of resolution for group
+                  data onto endpoints. Higher wins.
+                format: int32
+                maximum: 255
+                minimum: 0
+                type: integer
+            type: object
+          status:
+            description: EndpointGroupStatus is the status for an EndpointGroup resource.
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

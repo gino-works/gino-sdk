@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package plugin.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
+
+service LoaderService {
+  rpc Load(LoadRequest) returns (LoadResponse);
+}
+
+message LoadDocument {
+  bytes endpoint = 1;
+  bytes data = 2;
+  google.protobuf.Timestamp enriched_at = 3;
+}
+
+message LoadRequest {
+  string model = 1;
+  string version = 2;
+  repeated LoadDocument documents = 3;
+}
+
+message LoadResponse {}

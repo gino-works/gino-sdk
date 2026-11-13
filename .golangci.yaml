@@ -1,0 +1,85 @@
+---
+version: "2"
+run:
+  go: "1.27"
+linters:
+  default: all
+  disable:
+    - cyclop # already using gocyclo, and its good enough!
+    - depguard
+    - err113
+    - exhaustruct
+    - exhaustruct_v5
+    - gomodguard # deprecated, gomodguard_v2 included in all ofc
+    - paralleltest
+    - perfsprint
+    - varnamelen
+    - wrapcheck
+    - wsl # deprecated, wsl_v5 included in all ofc
+  settings:
+    forbidigo:
+      forbid:
+        - pattern: '^(fmt\.Print(|f|ln)|print|println)$'
+          msg: default forbidigo match
+    funlen:
+      lines: 150
+      statements: 50
+    gocritic:
+      disabled-checks:
+        - whyNoLint
+      enable-all: true
+      settings:
+        hugeParam:
+          # default value is ultra smol
+          sizeThreshold: 512
+    gocyclo:
+      min-complexity: 15
+    lll:
+      line-length: 100
+      tab-width: 4
+    sloglint:
+      attr-only: true
+      msg-style: lowercased
+      args-on-sep-lines: true
+  exclusions:
+    rules:
+      - linters:
+          - govet
+        text: buildtag
+      - linters:
+          - revive
+        text: package-comments
+      - linters:
+          - dupl
+          - lll
+          - goconst
+          - gocognit
+          - funlen
+          - gochecknoglobals
+        path: _test\.go
+      - linters:
+          - modernize
+        text: "embedlit: embedded field type can be removed from struct literal"
+      - linters:
+          - gochecknoglobals
+        text: schemeBuilder is a global variable
+      - linters:
+          - gochecknoglobals
+        text: localSchemeBuilder is a global variable
+      - linters:
+          - gochecknoglobals
+        text: SchemeGroupVersion is a global variable
+      - linters:
+          - gochecknoglobals
+        text: AddToScheme is a global variable
+      # kubebuilder directives
+      - linters:
+          - lll
+        path: apis/
+    paths:
+      - .private
+      - generated
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  uniq-by-line: false

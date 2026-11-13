@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package plugin.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
+
+service EnricherService {
+  rpc Enrich(EnrichRequest) returns (EnrichResponse);
+}
+
+message EnrichInput {
+  string name = 1;
+  bytes payload = 2;
+  google.protobuf.Timestamp collected_at = 3;
+}
+
+message EnrichRequest {
+  bytes endpoint = 1;
+  string model = 2;
+  string version = 3;
+  repeated EnrichInput inputs = 4;
+}
+
+message EnrichResponse {
+  bytes data = 1;
+}

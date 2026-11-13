@@ -1,0 +1,137 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.23.0
+  name: models.gino.io
+spec:
+  group: gino.io
+  names:
+    kind: Model
+    listKind: ModelList
+    plural: models
+    shortNames:
+    - gm
+    singular: model
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          Model is an object that holds information about a gino model -- the actual thing that we are
+          trying to produce -- the schema that gets written into caches/databases.
+          Short name gm -> "gino model".
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ModelSpec is the spec for a Model resource.
+            properties:
+              targetVersion:
+                description: |-
+                  TargetVersion is the preferred/target version of this model, required to ensure previous
+                  model versions are still supported for migration period.
+                type: string
+              versions:
+                description: Versions hold the supported versions -- TargetVersion
+                  *must* be present.
+                items:
+                  description: ModelVersion holds a version of the Model.
+                  properties:
+                    inputs:
+                      items:
+                        description: |-
+                          ModelInput defines an input this model wants -- the input name and when/how often it wants the
+                          input.
+                        properties:
+                          name:
+                            description: Name is the name of the input this model
+                              wants.
+                            type: string
+                          optional:
+                            description: |-
+                              Optional marks an input the model can be produced without. A platform that does not provide
+                              an optional input is still supported for this model; enrichment emits without it, and its
+                              staleness is reported but does not count as a violation.
+                            type: boolean
+                          require:
+                            description: Require defines when or how fresh the model
+                              requires this input to be.
+                            properties:
+                              at:
+                                type: string
+                              freshness:
+                                type: string
+                            type: object
+                            x-kubernetes-validations:
+                            - message: Exactly one requirement type must be specified
+                              rule: '(has(self.freshness) ? 1 : 0) + (has(self.at)
+                                ? 1 : 0) == 1'
+                        required:
+                        - name
+                        - require
+                        type: object
+                      type: array
+                    loadSpec:
+                      description: |-
+                        ModelLoadSpec defines the criteria for when a loader passes the received enriched messages to
+                        the loader server.
+                      properties:
+                        maxCount:
+                          default: 100
+                          type: integer
+                        maxWait:
+                          default: 3m
+                          description: |-
+                            MaxWait is how long the loader holds a batch open waiting for more documents. It is capped so
+                            that the loader's consumer ack wait can be a constant that always exceeds it.
+                          type: string
+                          x-kubernetes-validations:
+                          - message: maxWait may not exceed 5m
+                            rule: duration(self) <= duration('5m')
+                      type: object
+                    version:
+                      type: string
+                  required:
+                  - inputs
+                  - version
+                  type: object
+                maxItems: 16
+                type: array
+                x-kubernetes-list-map-keys:
+                - version
+                x-kubernetes-list-type: map
+            required:
+            - targetVersion
+            - versions
+            type: object
+            x-kubernetes-validations:
+            - message: Target Version must be in list of Versions
+              rule: self.versions.exists(v, v.version == self.targetVersion)
+          status:
+            description: ModelStatus is the spec for a Model resource.
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

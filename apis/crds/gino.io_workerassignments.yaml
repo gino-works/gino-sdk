@@ -1,0 +1,413 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.23.0
+  name: workerassignments.gino.io
+spec:
+  group: gino.io
+  names:
+    kind: WorkerAssignment
+    listKind: WorkerAssignmentList
+    plural: workerassignments
+    shortNames:
+    - gwa
+    singular: workerassignment
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          WorkerAssignment is maybe the most important gino crd -- it defines how and where workers get
+          placed -- the workers being the *thing* that does the collection of data, ingesting it into the
+          gino pipeline.
+          Short name gwa -> "gino worker assignment".
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: WorkerAssignmentSpec holds assignment data.
+            properties:
+              cluster:
+                description: Cluster is the name of the cluster this assignment runs
+                  in.
+                type: string
+              endpoints:
+                description: Endpoints hold the endpoint info required for the worker
+                  to work.
+                items:
+                  description: |-
+                    WorkerAssignmentEndpoint is a single endpoint this worker works for, including the info about the
+                    endpoint needed to do the work. This is the final/resolved content that also rides along with all
+                    messages related to this endpoint (such that downstream workers have "full" information about
+                    the endpoint).
+                  properties:
+                    credentials:
+                      description: |-
+                        Credentials names the Secret in the endpoint's (and so the worker's) namespace holding this
+                        endpoint's credentials for this kind.
+                      type: string
+                    host:
+                      description: Host is the host to connect to for this endpoint.
+                      type: string
+                    interfaceTags:
+                      description: |-
+                        InterfaceTags are the resolved interface classification rules, evaluated by the enricher
+                        against the interfaces it sees; they ride on collected messages like Tags.
+                      items:
+                        description: InterfaceTag holds interface matching -> tag
+                          data.
+                        properties:
+                          match:
+                            description: InterfaceTagMatch selects interfaces; every
+                              set field must match (AND). At least one is required.
+                            properties:
+                              description:
+                                description: Description is a Go regex matched against
+                                  the interface description.
+                                maxLength: 256
+                                type: string
+                              name:
+                                description: Name is a Go regex matched against the
+                                  interface name.
+                                maxLength: 256
+                                type: string
+                            type: object
+                            x-kubernetes-validations:
+                            - message: at least one of name or description must be
+                                set
+                              rule: has(self.name) || has(self.description)
+                          tags:
+                            additionalProperties:
+                              type: string
+                            type: object
+                        required:
+                        - match
+                        - tags
+                        type: object
+                      type: array
+                      x-kubernetes-list-type: atomic
+                    location:
+                      description: Location is the resolved (final) location of the
+                        endpoint (if set).
+                      type: string
+                    locationType:
+                      description: LocationType is the resolved location type (if
+                        set).
+                      type: string
+                    name:
+                      description: Name is the endpoint name.
+                      type: string
+                    namespace:
+                      description: Namespace is the namespace the endpoint lives in.
+                      type: string
+                    platform:
+                      type: string
+                    platformName:
+                      description: PlatformName is the key into spec.inputSets --
+                        the matched Platform's name.
+                      type: string
+                    profile:
+                      type: string
+                    tags:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    vendor:
+                      description: |-
+                        Vendor, Platform and Profile are the endpoint's resolved identity. They ride on every
+                        collected message as metadata; the Platform CR that applies is InputSet.
+                      type: string
+                  required:
+                  - host
+                  - name
+                  - namespace
+                  - platformName
+                  type: object
+                minItems: 1
+                type: array
+                x-kubernetes-list-type: atomic
+              inputSets:
+                additionalProperties:
+                  items:
+                    description: |-
+                      AssignedInput is one input to collect from one endpoint, fully resolved: the platform's
+                      implementation, the strictest requirement across every model that wants it, and who wants it.
+                    properties:
+                      consumers:
+                        items:
+                          description: ResolvedModel is a fully resolved model.
+                          properties:
+                            name:
+                              description: Name is the name of the model.
+                              type: string
+                            version:
+                              description: Version is the version of the model.
+                              type: string
+                          required:
+                          - name
+                          - version
+                          type: object
+                        type: array
+                      impl:
+                        description: PlatformInput defines an input for this platform.
+                        properties:
+                          cli:
+                            description: Cli is the cli flavor of input.
+                            properties:
+                              commands:
+                                description: |-
+                                  Commands are all run, in order, on the endpoint's session as one unit. Their outputs are
+                                  handed to the transform together, keyed by name.
+                                items:
+                                  description: CliCommand is a single command/input
+                                    to a cli device.
+                                  properties:
+                                    input:
+                                      description: Input -- the actual input sent
+                                        to the device.
+                                      type: string
+                                    name:
+                                      description: Name -- name that transformers
+                                        read to map to a transform.
+                                      type: string
+                                  required:
+                                  - input
+                                  - name
+                                  type: object
+                                minItems: 1
+                                type: array
+                                x-kubernetes-list-type: atomic
+                            required:
+                            - commands
+                            type: object
+                          http:
+                            description: HTTP is the http flavor of input.
+                            type: object
+                          tcp:
+                            description: TCP is the tcp flavor of input.
+                            properties:
+                              probes:
+                                description: Probes are all run, in order, against
+                                  the endpoint.
+                                items:
+                                  description: TCPProbe holds data about a tcp probe.
+                                  properties:
+                                    port:
+                                      maximum: 65535
+                                      minimum: 1
+                                      type: integer
+                                  required:
+                                  - port
+                                  type: object
+                                minItems: 1
+                                type: array
+                                x-kubernetes-list-type: atomic
+                            required:
+                            - probes
+                            type: object
+                        type: object
+                        x-kubernetes-validations:
+                        - message: Exactly one input type must be specified
+                          rule: '(has(self.cli) ? 1 : 0) + (has(self.http) ? 1 : 0)
+                            == 1'
+                      kind:
+                        description: CollectorKind is the kind of collector/protocol
+                          used to talk to an endpoint.
+                        enum:
+                        - tcp
+                        - cli
+                        - http
+                        type: string
+                      name:
+                        type: string
+                      optional:
+                        type: boolean
+                      require:
+                        description: ModelRequirement holds info about when/at what
+                          time the model wants this input.
+                        properties:
+                          at:
+                            type: string
+                          freshness:
+                            type: string
+                        type: object
+                        x-kubernetes-validations:
+                        - message: Exactly one requirement type must be specified
+                          rule: '(has(self.freshness) ? 1 : 0) + (has(self.at) ? 1
+                            : 0) == 1'
+                    required:
+                    - consumers
+                    - impl
+                    - kind
+                    - name
+                    - require
+                    type: object
+                  type: array
+                description: |-
+                  InputSets are the resolved inputs for this kind, keyed by Platform name. Every endpoint on
+                  a platform collects the same inputs, so they are stored once and referenced.
+                type: object
+              kind:
+                description: Kind is the kind of the collector this worker will realize.
+                enum:
+                - tcp
+                - cli
+                - http
+                type: string
+              logging:
+                description: Logging holds the logging configuration for this worker.
+                properties:
+                  logDevMode:
+                    description: LogDevMode enables the dev mode with pretty printing/colors.
+                    type: boolean
+                  logLevel:
+                    default: warn
+                    description: LogLevel sets the logger level.
+                    enum:
+                    - error
+                    - warn
+                    - info
+                    - debug
+                    type: string
+                  logRecorderMode:
+                    description: |-
+                      LogRecorderMode enables the logger to record messages and emit them when an error is
+                      encountered.
+                    type: boolean
+                type: object
+              pipeline:
+                description: Pipeline is the name of the pipeline this assignment
+                  is a child of.
+                type: string
+              shard:
+                description: |-
+                  Shard is this assignment's index among the assignments for the same pipeline/cluster/kind in
+                  this namespace. It is how placement stays sticky across reconciles: endpoints already on a
+                  shard stay there. Always 0 when shardSize is 1 (one assignment per endpoint).
+                format: int32
+                type: integer
+              workerSpec:
+                description: WorkerSpec holds image/resource spec information for
+                  this worker.
+                properties:
+                  image:
+                    description: |-
+                      Image is the override image to set on this worker, defaulted to whatever the controller was
+                      deployed w/ for this otherwise.
+                    properties:
+                      digest:
+                        description: Digest pins the image (sha256:...); when set
+                          it is used instead of Tag.
+                        pattern: ^sha256:[a-f0-9]{64}$
+                        type: string
+                      pullPolicy:
+                        description: PullPolicy is the image pull policy for the worker.
+                        enum:
+                        - IfNotPresent
+                        - Always
+                        - Never
+                        type: string
+                      repository:
+                        description: Repository is the image repository to use.
+                        type: string
+                      tag:
+                        description: Tag is the image tag to use.
+                        type: string
+                    type: object
+                  resources:
+                    description: Resources define standard k8s resources for the worker.
+                    properties:
+                      claims:
+                        description: |-
+                          Claims lists the names of resources, defined in spec.resourceClaims,
+                          that are used by this container.
+
+                          This field depends on the
+                          DynamicResourceAllocation feature gate.
+
+                          This field is immutable. It can only be set for containers.
+                        items:
+                          description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                          properties:
+                            name:
+                              description: |-
+                                Name must match the name of one entry in pod.spec.resourceClaims of
+                                the Pod where this field is used. It makes that resource available
+                                inside a container.
+                              type: string
+                            request:
+                              description: |-
+                                Request is the name chosen for a request in the referenced claim.
+                                If empty, everything from the claim is made available, otherwise
+                                only the result of this request.
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        type: array
+                        x-kubernetes-list-map-keys:
+                        - name
+                        x-kubernetes-list-type: map
+                      limits:
+                        additionalProperties:
+                          anyOf:
+                          - type: integer
+                          - type: string
+                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                          x-kubernetes-int-or-string: true
+                        description: |-
+                          Limits describes the maximum amount of compute resources allowed.
+                          More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                        type: object
+                      requests:
+                        additionalProperties:
+                          anyOf:
+                          - type: integer
+                          - type: string
+                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                          x-kubernetes-int-or-string: true
+                        description: |-
+                          Requests describes the minimum amount of compute resources required.
+                          If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                          otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                          More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                        type: object
+                    type: object
+                type: object
+            required:
+            - cluster
+            - endpoints
+            - inputSets
+            - kind
+            - pipeline
+            - workerSpec
+            type: object
+          status:
+            description: WorkerAssignmentStatus is the status for a WorkerAssignment
+              resource.
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

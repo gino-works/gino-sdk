@@ -1,0 +1,322 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.23.0
+  name: locations.gino.io
+spec:
+  group: gino.io
+  names:
+    kind: Location
+    listKind: LocationList
+    plural: locations
+    shortNames:
+    - gl
+    singular: location
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          Location is an object that holds information about a gino "location" -- that is, some place that
+          gino endpoints live at (or really not, its obviously a logical grouping!).
+          Short name gl -> "gino location".
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: LocationSpec is the spec for a Location resource.
+            properties:
+              cluster:
+                description: |-
+                  Cluster is the name of the cluster that endpoints for this site are collected from. This
+                  is the default home of this information but individual Endpoints can override it.
+                  Unset in spec means we will try to resolve it from our parent(s), but unset will mean no
+                  collections can be deployed for this location (as in, if it is not resolvable).
+                type: string
+              disableCollection:
+                description: DisableCollection ensures no workers are spawned for
+                  this endpoint.
+                type: boolean
+              namespace:
+                description: Namespace defines if/how a namespace corresponding to
+                  this object will be managed.
+                properties:
+                  manage:
+                    description: |-
+                      Manage indicates if a namespace corresponding to this location should be created and owned
+                      by this object. Not inherited.
+                    type: boolean
+                    x-kubernetes-validations:
+                    - message: namespace.manage is immutable
+                      rule: self == oldSelf
+                  prefix:
+                    description: |-
+                      Prefix is prepended to the location name to form the namespace name, as in
+                      `fmt.Sprintf("%s-%s", prefix, name)`. Inherited.
+                    maxLength: 32
+                    type: string
+                  secrets:
+                    description: |-
+                      Secrets are names of replicated secrets (from the manager's mount or labelled Secrets) to
+                      place in the namespace. Inherited down the location tree as a union. Ignored when manage is
+                      false.
+                    items:
+                      type: string
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: set
+                type: object
+              parent:
+                description: Parent is the optional parent of this location -- for
+                  things like site/location in netbox.
+                type: string
+              tags:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Tags hold additional k:v data for the endpoint. These are not used for selection (thats what
+                  the regular labels are for) but instead for expressing additional context about the endpoint.
+                type: object
+              type:
+                description: TYpe is the type of the location.
+                type: string
+            type: object
+          status:
+            description: LocationStatus is the status for a Location resource.
+            properties:
+              conditions:
+                description: |-
+                  Conditions summarize the locations's state. Known types:
+                    - Resolved: template things have been applied; False with reason NoSecret etc. when the
+                      effective configuration is unusable.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the metadata.generation this status was computed from. The apiserver
+                  bumps metadata.generation on every spec change (not on status or metadata changes), so a
+                  reader can tell whether status reflects the current spec: if observedGeneration <
+                  metadata.generation the controller has not caught up yet and the rest of status is stale.
+                format: int64
+                type: integer
+              resolved:
+                description: |-
+                  Resolved holds the fully resolved location data -- meaning we have fully processed any
+                  parent locations and resolved our data compeletely.
+                properties:
+                  cluster:
+                    description: |-
+                      Cluster is the name of the cluster that endpoints for this site are collected from. This
+                      is the default home of this information but individual Endpoints can override it.
+                      Unset in spec means we will try to resolve it from our parent(s), but unset will mean no
+                      collections can be deployed for this location (as in, if it is not resolvable).
+                    type: string
+                  disableCollection:
+                    description: DisableCollection ensures no workers are spawned
+                      for this endpoint.
+                    type: boolean
+                  namespace:
+                    description: Namespace defines if/how a namespace corresponding
+                      to this object will be managed.
+                    properties:
+                      manage:
+                        description: |-
+                          Manage indicates if a namespace corresponding to this location should be created and owned
+                          by this object. Not inherited.
+                        type: boolean
+                        x-kubernetes-validations:
+                        - message: namespace.manage is immutable
+                          rule: self == oldSelf
+                      prefix:
+                        description: |-
+                          Prefix is prepended to the location name to form the namespace name, as in
+                          `fmt.Sprintf("%s-%s", prefix, name)`. Inherited.
+                        maxLength: 32
+                        type: string
+                      secrets:
+                        description: |-
+                          Secrets are names of replicated secrets (from the manager's mount or labelled Secrets) to
+                          place in the namespace. Inherited down the location tree as a union. Ignored when manage is
+                          false.
+                        items:
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                    type: object
+                  secretSources:
+                    additionalProperties:
+                      description: ResolvedSource identifies the object a resolved
+                        field was taken from.
+                      properties:
+                        kind:
+                          description: ResolvedSourceKind identifies what kind of
+                            object (or pseudo-source) a resolved field came from.
+                          enum:
+                          - Endpoint
+                          - EndpointGroup
+                          - Location
+                          - Labels
+                          - Default
+                          type: string
+                        name:
+                          description: Name of the source object. Empty for Labels/Default.
+                          type: string
+                        namespace:
+                          description: Namespace of the source object, for namespaced
+                            kinds.
+                          type: string
+                      required:
+                      - kind
+                      type: object
+                    description: SecretSources records where each namespace secret
+                      came from (the nearest location naming it).
+                    type: object
+                  sources:
+                    additionalProperties:
+                      description: ResolvedSource identifies the object a resolved
+                        field was taken from.
+                      properties:
+                        kind:
+                          description: ResolvedSourceKind identifies what kind of
+                            object (or pseudo-source) a resolved field came from.
+                          enum:
+                          - Endpoint
+                          - EndpointGroup
+                          - Location
+                          - Labels
+                          - Default
+                          type: string
+                        name:
+                          description: Name of the source object. Empty for Labels/Default.
+                          type: string
+                        namespace:
+                          description: Namespace of the source object, for namespaced
+                            kinds.
+                          type: string
+                      required:
+                      - kind
+                      type: object
+                    description: Sources records where each field came from, keyed
+                      by field path within the template.
+                    type: object
+                  tagSources:
+                    additionalProperties:
+                      description: ResolvedSource identifies the object a resolved
+                        field was taken from.
+                      properties:
+                        kind:
+                          description: ResolvedSourceKind identifies what kind of
+                            object (or pseudo-source) a resolved field came from.
+                          enum:
+                          - Endpoint
+                          - EndpointGroup
+                          - Location
+                          - Labels
+                          - Default
+                          type: string
+                        name:
+                          description: Name of the source object. Empty for Labels/Default.
+                          type: string
+                        namespace:
+                          description: Namespace of the source object, for namespaced
+                            kinds.
+                          type: string
+                      required:
+                      - kind
+                      type: object
+                    description: TagSources records where each tag came from.
+                    type: object
+                  tags:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      Tags hold additional k:v data for the endpoint. These are not used for selection (thats what
+                      the regular labels are for) but instead for expressing additional context about the endpoint.
+                    type: object
+                  type:
+                    description: TYpe is the type of the location.
+                    type: string
+                type: object
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

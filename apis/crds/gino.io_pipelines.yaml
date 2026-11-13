@@ -1,0 +1,1298 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.23.0
+  name: pipelines.gino.io
+spec:
+  group: gino.io
+  names:
+    kind: Pipeline
+    listKind: PipelineList
+    plural: pipelines
+    shortNames:
+    - gpipe
+    singular: pipeline
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Resolved')].status
+      name: Resolved
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          Pipeline is an object that defines how endpoints get mapped to a pipeline -- that is the process
+          of collecting, normalizing, and loading data. The result of a Pipeline being reconciled is the
+          WorkerAssignment crs that hold the resolved information about the collection deployment(s), the
+          consumers(queues) for the messaging service, and the deployments that handle the transform/enrich
+          and load components.
+          Short name gpipe -> "gino pipeline".
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PipelineSpec is the spec for a Pipeline resource.
+            properties:
+              collection:
+                description: Collection defines how to collect things for this Pipeline.
+                properties:
+                  workers:
+                    description: Workers holds configurations for the workers in this
+                      CollectionSpec.
+                    properties:
+                      cli:
+                        description: CliWorkerSpec defines configuration for cli workers.
+                        properties:
+                          image:
+                            description: |-
+                              Image is the override image to set on this worker, defaulted to whatever the controller was
+                              deployed w/ for this otherwise.
+                            properties:
+                              digest:
+                                description: Digest pins the image (sha256:...); when
+                                  set it is used instead of Tag.
+                                pattern: ^sha256:[a-f0-9]{64}$
+                                type: string
+                              pullPolicy:
+                                description: PullPolicy is the image pull policy for
+                                  the worker.
+                                enum:
+                                - IfNotPresent
+                                - Always
+                                - Never
+                                type: string
+                              repository:
+                                description: Repository is the image repository to
+                                  use.
+                                type: string
+                              tag:
+                                description: Tag is the image tag to use.
+                                type: string
+                            type: object
+                          logDevMode:
+                            description: LogDevMode enables the dev mode with pretty
+                              printing/colors.
+                            type: boolean
+                          logLevel:
+                            default: warn
+                            description: LogLevel sets the logger level.
+                            enum:
+                            - error
+                            - warn
+                            - info
+                            - debug
+                            type: string
+                          logRecorderMode:
+                            description: |-
+                              LogRecorderMode enables the logger to record messages and emit them when an error is
+                              encountered.
+                            type: boolean
+                          resources:
+                            description: Resources define standard k8s resources for
+                              the worker.
+                            properties:
+                              claims:
+                                description: |-
+                                  Claims lists the names of resources, defined in spec.resourceClaims,
+                                  that are used by this container.
+
+                                  This field depends on the
+                                  DynamicResourceAllocation feature gate.
+
+                                  This field is immutable. It can only be set for containers.
+                                items:
+                                  description: ResourceClaim references one entry
+                                    in PodSpec.ResourceClaims.
+                                  properties:
+                                    name:
+                                      description: |-
+                                        Name must match the name of one entry in pod.spec.resourceClaims of
+                                        the Pod where this field is used. It makes that resource available
+                                        inside a container.
+                                      type: string
+                                    request:
+                                      description: |-
+                                        Request is the name chosen for a request in the referenced claim.
+                                        If empty, everything from the claim is made available, otherwise
+                                        only the result of this request.
+                                      type: string
+                                  required:
+                                  - name
+                                  type: object
+                                type: array
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
+                              limits:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Limits describes the maximum amount of compute resources allowed.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                              requests:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Requests describes the minimum amount of compute resources required.
+                                  If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                  otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                            type: object
+                          shardSize:
+                            default: 10
+                            description: |-
+                              ShardSize is the number of target endpoints per replica -- setting this to 1 means 1:1
+                              endpoint to collector.
+                            format: int32
+                            maximum: 10000
+                            minimum: 1
+                            type: integer
+                        type: object
+                      http:
+                        description: HTTPWorkerSpec defines configuration for http
+                          workers.
+                        properties:
+                          image:
+                            description: |-
+                              Image is the override image to set on this worker, defaulted to whatever the controller was
+                              deployed w/ for this otherwise.
+                            properties:
+                              digest:
+                                description: Digest pins the image (sha256:...); when
+                                  set it is used instead of Tag.
+                                pattern: ^sha256:[a-f0-9]{64}$
+                                type: string
+                              pullPolicy:
+                                description: PullPolicy is the image pull policy for
+                                  the worker.
+                                enum:
+                                - IfNotPresent
+                                - Always
+                                - Never
+                                type: string
+                              repository:
+                                description: Repository is the image repository to
+                                  use.
+                                type: string
+                              tag:
+                                description: Tag is the image tag to use.
+                                type: string
+                            type: object
+                          logDevMode:
+                            description: LogDevMode enables the dev mode with pretty
+                              printing/colors.
+                            type: boolean
+                          logLevel:
+                            default: warn
+                            description: LogLevel sets the logger level.
+                            enum:
+                            - error
+                            - warn
+                            - info
+                            - debug
+                            type: string
+                          logRecorderMode:
+                            description: |-
+                              LogRecorderMode enables the logger to record messages and emit them when an error is
+                              encountered.
+                            type: boolean
+                          resources:
+                            description: Resources define standard k8s resources for
+                              the worker.
+                            properties:
+                              claims:
+                                description: |-
+                                  Claims lists the names of resources, defined in spec.resourceClaims,
+                                  that are used by this container.
+
+                                  This field depends on the
+                                  DynamicResourceAllocation feature gate.
+
+                                  This field is immutable. It can only be set for containers.
+                                items:
+                                  description: ResourceClaim references one entry
+                                    in PodSpec.ResourceClaims.
+                                  properties:
+                                    name:
+                                      description: |-
+                                        Name must match the name of one entry in pod.spec.resourceClaims of
+                                        the Pod where this field is used. It makes that resource available
+                                        inside a container.
+                                      type: string
+                                    request:
+                                      description: |-
+                                        Request is the name chosen for a request in the referenced claim.
+                                        If empty, everything from the claim is made available, otherwise
+                                        only the result of this request.
+                                      type: string
+                                  required:
+                                  - name
+                                  type: object
+                                type: array
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
+                              limits:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Limits describes the maximum amount of compute resources allowed.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                              requests:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Requests describes the minimum amount of compute resources required.
+                                  If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                  otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                            type: object
+                          shardSize:
+                            default: 10
+                            description: |-
+                              ShardSize is the number of target endpoints per replica -- setting this to 1 means 1:1
+                              endpoint to collector.
+                            format: int32
+                            maximum: 10000
+                            minimum: 1
+                            type: integer
+                        type: object
+                      tcp:
+                        description: TCPWorkerSpec defines configuration for tcp workers.
+                        properties:
+                          image:
+                            description: |-
+                              Image is the override image to set on this worker, defaulted to whatever the controller was
+                              deployed w/ for this otherwise.
+                            properties:
+                              digest:
+                                description: Digest pins the image (sha256:...); when
+                                  set it is used instead of Tag.
+                                pattern: ^sha256:[a-f0-9]{64}$
+                                type: string
+                              pullPolicy:
+                                description: PullPolicy is the image pull policy for
+                                  the worker.
+                                enum:
+                                - IfNotPresent
+                                - Always
+                                - Never
+                                type: string
+                              repository:
+                                description: Repository is the image repository to
+                                  use.
+                                type: string
+                              tag:
+                                description: Tag is the image tag to use.
+                                type: string
+                            type: object
+                          logDevMode:
+                            description: LogDevMode enables the dev mode with pretty
+                              printing/colors.
+                            type: boolean
+                          logLevel:
+                            default: warn
+                            description: LogLevel sets the logger level.
+                            enum:
+                            - error
+                            - warn
+                            - info
+                            - debug
+                            type: string
+                          logRecorderMode:
+                            description: |-
+                              LogRecorderMode enables the logger to record messages and emit them when an error is
+                              encountered.
+                            type: boolean
+                          resources:
+                            description: Resources define standard k8s resources for
+                              the worker.
+                            properties:
+                              claims:
+                                description: |-
+                                  Claims lists the names of resources, defined in spec.resourceClaims,
+                                  that are used by this container.
+
+                                  This field depends on the
+                                  DynamicResourceAllocation feature gate.
+
+                                  This field is immutable. It can only be set for containers.
+                                items:
+                                  description: ResourceClaim references one entry
+                                    in PodSpec.ResourceClaims.
+                                  properties:
+                                    name:
+                                      description: |-
+                                        Name must match the name of one entry in pod.spec.resourceClaims of
+                                        the Pod where this field is used. It makes that resource available
+                                        inside a container.
+                                      type: string
+                                    request:
+                                      description: |-
+                                        Request is the name chosen for a request in the referenced claim.
+                                        If empty, everything from the claim is made available, otherwise
+                                        only the result of this request.
+                                      type: string
+                                  required:
+                                  - name
+                                  type: object
+                                type: array
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
+                              limits:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Limits describes the maximum amount of compute resources allowed.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                              requests:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Requests describes the minimum amount of compute resources required.
+                                  If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                  otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                            type: object
+                          shardSize:
+                            default: 10
+                            description: |-
+                              ShardSize is the number of target endpoints per replica -- setting this to 1 means 1:1
+                              endpoint to collector.
+                            format: int32
+                            maximum: 10000
+                            minimum: 1
+                            type: integer
+                        type: object
+                    required:
+                    - cli
+                    - http
+                    - tcp
+                    type: object
+                required:
+                - workers
+                type: object
+              models:
+                description: Models is the listing of models this pipeline is setup
+                  to collect/emit.
+                items:
+                  description: PipelineModel is a model the Pipeline is working to
+                    build.
+                  properties:
+                    name:
+                      description: Name of the model.
+                      type: string
+                    version:
+                      description: Version the version of the model -- defaults to
+                        the models target version if unset.
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+              processing:
+                description: Processing defines how processing should be setup for
+                  this Pipeline.
+                properties:
+                  enrich:
+                    description: EnrichSpec holds configuration data for the enrichment
+                      tier.
+                    properties:
+                      image:
+                        description: |-
+                          Image is the override image to set on this worker, defaulted to whatever the controller was
+                          deployed w/ for this otherwise.
+                        properties:
+                          digest:
+                            description: Digest pins the image (sha256:...); when
+                              set it is used instead of Tag.
+                            pattern: ^sha256:[a-f0-9]{64}$
+                            type: string
+                          pullPolicy:
+                            description: PullPolicy is the image pull policy for the
+                              worker.
+                            enum:
+                            - IfNotPresent
+                            - Always
+                            - Never
+                            type: string
+                          repository:
+                            description: Repository is the image repository to use.
+                            type: string
+                          tag:
+                            description: Tag is the image tag to use.
+                            type: string
+                        type: object
+                      logDevMode:
+                        description: LogDevMode enables the dev mode with pretty printing/colors.
+                        type: boolean
+                      logLevel:
+                        default: warn
+                        description: LogLevel sets the logger level.
+                        enum:
+                        - error
+                        - warn
+                        - info
+                        - debug
+                        type: string
+                      logRecorderMode:
+                        description: |-
+                          LogRecorderMode enables the logger to record messages and emit them when an error is
+                          encountered.
+                        type: boolean
+                      replicas:
+                        default: 1
+                        format: int32
+                        minimum: 0
+                        type: integer
+                      resources:
+                        description: Resources define standard k8s resources for the
+                          worker.
+                        properties:
+                          claims:
+                            description: |-
+                              Claims lists the names of resources, defined in spec.resourceClaims,
+                              that are used by this container.
+
+                              This field depends on the
+                              DynamicResourceAllocation feature gate.
+
+                              This field is immutable. It can only be set for containers.
+                            items:
+                              description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                              properties:
+                                name:
+                                  description: |-
+                                    Name must match the name of one entry in pod.spec.resourceClaims of
+                                    the Pod where this field is used. It makes that resource available
+                                    inside a container.
+                                  type: string
+                                request:
+                                  description: |-
+                                    Request is the name chosen for a request in the referenced claim.
+                                    If empty, everything from the claim is made available, otherwise
+                                    only the result of this request.
+                                  type: string
+                              required:
+                              - name
+                              type: object
+                            type: array
+                            x-kubernetes-list-map-keys:
+                            - name
+                            x-kubernetes-list-type: map
+                          limits:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: |-
+                              Limits describes the maximum amount of compute resources allowed.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                            type: object
+                          requests:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: |-
+                              Requests describes the minimum amount of compute resources required.
+                              If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                              otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                            type: object
+                        type: object
+                    type: object
+                  load:
+                    description: LoadSpec holds configuration data for the loading
+                      tier.
+                    properties:
+                      extraEnv:
+                        description: ExtraEnv are extra env vars that will be mounted
+                          on the loader.
+                        items:
+                          description: EnvVar is a simplified env var to use with
+                            gino workers.
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - key
+                          - value
+                          type: object
+                        type: array
+                      image:
+                        description: |-
+                          Image is the override image to set on this worker, defaulted to whatever the controller was
+                          deployed w/ for this otherwise.
+                        properties:
+                          digest:
+                            description: Digest pins the image (sha256:...); when
+                              set it is used instead of Tag.
+                            pattern: ^sha256:[a-f0-9]{64}$
+                            type: string
+                          pullPolicy:
+                            description: PullPolicy is the image pull policy for the
+                              worker.
+                            enum:
+                            - IfNotPresent
+                            - Always
+                            - Never
+                            type: string
+                          repository:
+                            description: Repository is the image repository to use.
+                            type: string
+                          tag:
+                            description: Tag is the image tag to use.
+                            type: string
+                        type: object
+                      logDevMode:
+                        description: LogDevMode enables the dev mode with pretty printing/colors.
+                        type: boolean
+                      logLevel:
+                        default: warn
+                        description: LogLevel sets the logger level.
+                        enum:
+                        - error
+                        - warn
+                        - info
+                        - debug
+                        type: string
+                      logRecorderMode:
+                        description: |-
+                          LogRecorderMode enables the logger to record messages and emit them when an error is
+                          encountered.
+                        type: boolean
+                      replicas:
+                        default: 1
+                        format: int32
+                        minimum: 0
+                        type: integer
+                      resources:
+                        description: Resources define standard k8s resources for the
+                          worker.
+                        properties:
+                          claims:
+                            description: |-
+                              Claims lists the names of resources, defined in spec.resourceClaims,
+                              that are used by this container.
+
+                              This field depends on the
+                              DynamicResourceAllocation feature gate.
+
+                              This field is immutable. It can only be set for containers.
+                            items:
+                              description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                              properties:
+                                name:
+                                  description: |-
+                                    Name must match the name of one entry in pod.spec.resourceClaims of
+                                    the Pod where this field is used. It makes that resource available
+                                    inside a container.
+                                  type: string
+                                request:
+                                  description: |-
+                                    Request is the name chosen for a request in the referenced claim.
+                                    If empty, everything from the claim is made available, otherwise
+                                    only the result of this request.
+                                  type: string
+                              required:
+                              - name
+                              type: object
+                            type: array
+                            x-kubernetes-list-map-keys:
+                            - name
+                            x-kubernetes-list-type: map
+                          limits:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: |-
+                              Limits describes the maximum amount of compute resources allowed.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                            type: object
+                          requests:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: |-
+                              Requests describes the minimum amount of compute resources required.
+                              If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                              otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                            type: object
+                        type: object
+                      secrets:
+                        description: |-
+                          Secrets hold any secrets required to be mounted on the loader -- assumed to be in the main
+                          gino namespace where the loader will be running.
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  transform:
+                    description: TransformSpec holds configuration data for the transformation
+                      tier.
+                    properties:
+                      image:
+                        description: |-
+                          Image is the override image to set on this worker, defaulted to whatever the controller was
+                          deployed w/ for this otherwise.
+                        properties:
+                          digest:
+                            description: Digest pins the image (sha256:...); when
+                              set it is used instead of Tag.
+                            pattern: ^sha256:[a-f0-9]{64}$
+                            type: string
+                          pullPolicy:
+                            description: PullPolicy is the image pull policy for the
+                              worker.
+                            enum:
+                            - IfNotPresent
+                            - Always
+                            - Never
+                            type: string
+                          repository:
+                            description: Repository is the image repository to use.
+                            type: string
+                          tag:
+                            description: Tag is the image tag to use.
+                            type: string
+                        type: object
+                      logDevMode:
+                        description: LogDevMode enables the dev mode with pretty printing/colors.
+                        type: boolean
+                      logLevel:
+                        default: warn
+                        description: LogLevel sets the logger level.
+                        enum:
+                        - error
+                        - warn
+                        - info
+                        - debug
+                        type: string
+                      logRecorderMode:
+                        description: |-
+                          LogRecorderMode enables the logger to record messages and emit them when an error is
+                          encountered.
+                        type: boolean
+                      replicas:
+                        default: 1
+                        format: int32
+                        minimum: 0
+                        type: integer
+                      resources:
+                        description: Resources define standard k8s resources for the
+                          worker.
+                        properties:
+                          claims:
+                            description: |-
+                              Claims lists the names of resources, defined in spec.resourceClaims,
+                              that are used by this container.
+
+                              This field depends on the
+                              DynamicResourceAllocation feature gate.
+
+                              This field is immutable. It can only be set for containers.
+                            items:
+                              description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                              properties:
+                                name:
+                                  description: |-
+                                    Name must match the name of one entry in pod.spec.resourceClaims of
+                                    the Pod where this field is used. It makes that resource available
+                                    inside a container.
+                                  type: string
+                                request:
+                                  description: |-
+                                    Request is the name chosen for a request in the referenced claim.
+                                    If empty, everything from the claim is made available, otherwise
+                                    only the result of this request.
+                                  type: string
+                              required:
+                              - name
+                              type: object
+                            type: array
+                            x-kubernetes-list-map-keys:
+                            - name
+                            x-kubernetes-list-type: map
+                          limits:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: |-
+                              Limits describes the maximum amount of compute resources allowed.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                            type: object
+                          requests:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: |-
+                              Requests describes the minimum amount of compute resources required.
+                              If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                              otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                            type: object
+                        type: object
+                    type: object
+                required:
+                - enrich
+                - load
+                - transform
+                type: object
+              selector:
+                description: Selector is how this Pipeline selects sites or endpoints
+                  it will manifest the workers for.
+                properties:
+                  endpoints:
+                    description: Endpoints selects by Endpoint labels.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector
+                          requirements. The requirements are ANDed.
+                        items:
+                          description: |-
+                            A label selector requirement is a selector that contains values, a key, and an operator that
+                            relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector
+                                applies to.
+                              type: string
+                            operator:
+                              description: |-
+                                operator represents a key's relationship to a set of values.
+                                Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: |-
+                                values is an array of string values. If the operator is In or NotIn,
+                                the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                the values array must be empty. This array is replaced during a strategic
+                                merge patch.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: atomic
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                          map is equivalent to an element of matchExpressions, whose key field is "key", the
+                          operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                    x-kubernetes-map-type: atomic
+                  locations:
+                    description: Locations selects by Location labels.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector
+                          requirements. The requirements are ANDed.
+                        items:
+                          description: |-
+                            A label selector requirement is a selector that contains values, a key, and an operator that
+                            relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector
+                                applies to.
+                              type: string
+                            operator:
+                              description: |-
+                                operator represents a key's relationship to a set of values.
+                                Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: |-
+                                values is an array of string values. If the operator is In or NotIn,
+                                the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                the values array must be empty. This array is replaced during a strategic
+                                merge patch.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: atomic
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                          map is equivalent to an element of matchExpressions, whose key field is "key", the
+                          operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                    x-kubernetes-map-type: atomic
+                required:
+                - endpoints
+                - locations
+                type: object
+                x-kubernetes-validations:
+                - message: both locations and endpoints selectors must be set; use
+                    {} to select all
+                  rule: has(self.locations) && has(self.endpoints)
+            required:
+            - collection
+            - models
+            - processing
+            - selector
+            type: object
+          status:
+            description: PipelineStatus is the spec for a Pipeline resource.
+            properties:
+              conditions:
+                description: |-
+                  Conditions summarize the pipeline's state. Known types:
+                    - Resolved: TODO
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the metadata.generation this status was computed from. The apiserver
+                  bumps metadata.generation on every spec change (not on status or metadata changes), so a
+                  reader can tell whether status reflects the current spec: if observedGeneration <
+                  metadata.generation the controller has not caught up yet and the rest of status is stale.
+                format: int64
+                type: integer
+              resolved:
+                description: Resolved holds the fully resolved pipeline data.
+                properties:
+                  missingModelCoverage:
+                    additionalProperties:
+                      additionalProperties:
+                        items:
+                          type: string
+                        type: array
+                      type: object
+                    description: |-
+                      MissingModelCoverage is a mapping showing the platform -> model -> inputs that *cannot* be
+                      provided/resolved.
+                    type: object
+                  models:
+                    description: Models is the list of resolved model name/versions
+                      for this pipeline.
+                    items:
+                      description: ResolvedModel is a fully resolved model.
+                      properties:
+                        name:
+                          description: Name is the name of the model.
+                          type: string
+                        version:
+                          description: Version is the version of the model.
+                          type: string
+                      required:
+                      - name
+                      - version
+                      type: object
+                    type: array
+                  targets:
+                    additionalProperties:
+                      additionalProperties:
+                        items:
+                          description: AssignedEndpoint is one endpoint's worth of
+                            work for one collector kind.
+                          properties:
+                            credentials:
+                              description: |-
+                                Credentials names the Secret in the endpoint's (and so the worker's) namespace holding this
+                                endpoint's credentials for this kind.
+                              type: string
+                            host:
+                              description: Host is the host to connect to for this
+                                endpoint.
+                              type: string
+                            inputs:
+                              items:
+                                description: |-
+                                  AssignedInput is one input to collect from one endpoint, fully resolved: the platform's
+                                  implementation, the strictest requirement across every model that wants it, and who wants it.
+                                properties:
+                                  consumers:
+                                    items:
+                                      description: ResolvedModel is a fully resolved
+                                        model.
+                                      properties:
+                                        name:
+                                          description: Name is the name of the model.
+                                          type: string
+                                        version:
+                                          description: Version is the version of the
+                                            model.
+                                          type: string
+                                      required:
+                                      - name
+                                      - version
+                                      type: object
+                                    type: array
+                                  impl:
+                                    description: PlatformInput defines an input for
+                                      this platform.
+                                    properties:
+                                      cli:
+                                        description: Cli is the cli flavor of input.
+                                        properties:
+                                          commands:
+                                            description: |-
+                                              Commands are all run, in order, on the endpoint's session as one unit. Their outputs are
+                                              handed to the transform together, keyed by name.
+                                            items:
+                                              description: CliCommand is a single
+                                                command/input to a cli device.
+                                              properties:
+                                                input:
+                                                  description: Input -- the actual
+                                                    input sent to the device.
+                                                  type: string
+                                                name:
+                                                  description: Name -- name that transformers
+                                                    read to map to a transform.
+                                                  type: string
+                                              required:
+                                              - input
+                                              - name
+                                              type: object
+                                            minItems: 1
+                                            type: array
+                                            x-kubernetes-list-type: atomic
+                                        required:
+                                        - commands
+                                        type: object
+                                      http:
+                                        description: HTTP is the http flavor of input.
+                                        type: object
+                                      tcp:
+                                        description: TCP is the tcp flavor of input.
+                                        properties:
+                                          probes:
+                                            description: Probes are all run, in order,
+                                              against the endpoint.
+                                            items:
+                                              description: TCPProbe holds data about
+                                                a tcp probe.
+                                              properties:
+                                                port:
+                                                  maximum: 65535
+                                                  minimum: 1
+                                                  type: integer
+                                              required:
+                                              - port
+                                              type: object
+                                            minItems: 1
+                                            type: array
+                                            x-kubernetes-list-type: atomic
+                                        required:
+                                        - probes
+                                        type: object
+                                    type: object
+                                    x-kubernetes-validations:
+                                    - message: Exactly one input type must be specified
+                                      rule: '(has(self.cli) ? 1 : 0) + (has(self.http)
+                                        ? 1 : 0) == 1'
+                                  kind:
+                                    description: CollectorKind is the kind of collector/protocol
+                                      used to talk to an endpoint.
+                                    enum:
+                                    - tcp
+                                    - cli
+                                    - http
+                                    type: string
+                                  name:
+                                    type: string
+                                  optional:
+                                    type: boolean
+                                  require:
+                                    description: ModelRequirement holds info about
+                                      when/at what time the model wants this input.
+                                    properties:
+                                      at:
+                                        type: string
+                                      freshness:
+                                        type: string
+                                    type: object
+                                    x-kubernetes-validations:
+                                    - message: Exactly one requirement type must be
+                                        specified
+                                      rule: '(has(self.freshness) ? 1 : 0) + (has(self.at)
+                                        ? 1 : 0) == 1'
+                                required:
+                                - consumers
+                                - impl
+                                - kind
+                                - name
+                                - require
+                                type: object
+                              type: array
+                            interfaceTags:
+                              description: |-
+                                InterfaceTags are the resolved interface classification rules, evaluated by the enricher
+                                against the interfaces it sees; they ride on collected messages like Tags.
+                              items:
+                                description: InterfaceTag holds interface matching
+                                  -> tag data.
+                                properties:
+                                  match:
+                                    description: InterfaceTagMatch selects interfaces;
+                                      every set field must match (AND). At least one
+                                      is required.
+                                    properties:
+                                      description:
+                                        description: Description is a Go regex matched
+                                          against the interface description.
+                                        maxLength: 256
+                                        type: string
+                                      name:
+                                        description: Name is a Go regex matched against
+                                          the interface name.
+                                        maxLength: 256
+                                        type: string
+                                    type: object
+                                    x-kubernetes-validations:
+                                    - message: at least one of name or description
+                                        must be set
+                                      rule: has(self.name) || has(self.description)
+                                  tags:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                required:
+                                - match
+                                - tags
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                            location:
+                              description: Location is the resolved (final) location
+                                of the endpoint (if set).
+                              type: string
+                            locationType:
+                              description: LocationType is the resolved location type
+                                (if set).
+                              type: string
+                            name:
+                              description: Name is the endpoint name.
+                              type: string
+                            namespace:
+                              description: Namespace is the namespace the endpoint
+                                lives in.
+                              type: string
+                            platform:
+                              type: string
+                            platformName:
+                              description: PlatformName is the key into spec.inputSets
+                                -- the matched Platform's name.
+                              type: string
+                            profile:
+                              type: string
+                            tags:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            vendor:
+                              description: |-
+                                Vendor, Platform and Profile are the endpoint's resolved identity. They ride on every
+                                collected message as metadata; the Platform CR that applies is InputSet.
+                              type: string
+                          required:
+                          - host
+                          - inputs
+                          - name
+                          - namespace
+                          - platformName
+                          type: object
+                        type: array
+                      type: object
+                    description: Targets[cluster][kind] to the endpoints and their
+                      inputs for that container type.
+                    type: object
+                  unscheduled:
+                    description: Unscheduled explains every selected endpoint that
+                      produced no work.
+                    items:
+                      description: |-
+                        UnscheduledEndpoint holds reason why an endpoint (and which endpoint) cant be scheduled in this
+                        Pipeline.
+                      properties:
+                        kind:
+                          description: |-
+                            Kind is set when only one collector kind is affected (NoCredentials); empty when the whole
+                            endpoint is.
+                          enum:
+                          - tcp
+                          - cli
+                          - http
+                          type: string
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                        reason:
+                          description: |-
+                            UnschedulableReason identifies why an endpoint selected by a pipeline produced no work. Listed
+                            in the order they are checked; the first that applies is reported.
+                          enum:
+                          - Unresolved
+                          - Disabled
+                          - NoCluster
+                          - NoPlatformMatch
+                          - NoInputs
+                          - NoCredentials
+                          type: string
+                      required:
+                      - name
+                      - namespace
+                      - reason
+                      type: object
+                    type: array
+                required:
+                - missingModelCoverage
+                - models
+                - targets
+                type: object
+            type: object
+        required:
+        - spec
+        type: object
+        x-kubernetes-validations:
+        - message: metadata.name must be a valid DNS label (no dots, max 24 characters)
+          rule: self.metadata.name.matches('^[a-z0-9]([-a-z0-9]*[a-z0-9])?$') && size(self.metadata.name)
+            <= 24
+    served: true
+    storage: true
+    subresources:
+      status: {}
