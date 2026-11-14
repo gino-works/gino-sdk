@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	ginosdkapisv1 "github.com/gino-works/gino-sdk/apis/v1"
@@ -37,6 +38,7 @@ type LoadInputs []LoadInput
 // Load accepts finalized models for the loader server to load.
 type Load func(
 	ctx context.Context,
+	l *slog.Logger,
 	inputs LoadInputs,
 ) error
 
@@ -75,6 +77,7 @@ func DecodeLoadInputs[T any](
 // Load runs the registered load op(s) for model/version.
 func (r *Registry) Load(
 	ctx context.Context,
+	l *slog.Logger,
 	model, version string,
 	inputs LoadInputs,
 ) error {
@@ -83,7 +86,7 @@ func (r *Registry) Load(
 			continue
 		}
 
-		err := m.Load(ctx, inputs)
+		err := m.Load(ctx, l, inputs)
 		if err != nil {
 			return fmt.Errorf("loading %s/%s: %w", model, version, err)
 		}
