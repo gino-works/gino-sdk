@@ -10,6 +10,7 @@ type Model struct {
 	IsTarget bool
 	Inputs   []ModelInput
 	Enrich   Enrich
+	Load     Load
 }
 
 // ModelInput is one input a model version wants and how fresh: exactly one of Freshness or At,

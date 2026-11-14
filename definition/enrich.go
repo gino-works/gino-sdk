@@ -24,9 +24,9 @@ type Enrich func(
 	inputs EnrichInputs,
 ) (any, error)
 
-// Get returns the message unmarshaled into the type -- if its optional and not here ok is false.
-// Only returns an error on unmarshal issues.
-func Get[T any]( //nolint: ireturn
+// DecodeEnrichInput returns the message decoded into the type -- if its optional and not here ok
+// is false. Only returns an error on unmarshal issues.
+func DecodeEnrichInput[T any]( //nolint: ireturn
 	in EnrichInputs,
 	name string,
 ) (value T, ok bool, err error) { //nolint: nonamedreturns
