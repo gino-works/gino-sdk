@@ -10,16 +10,16 @@ service LoaderService {
   rpc Load(LoadRequest) returns (LoadResponse);
 }
 
-message LoadDocument {
+message LoadInput {
   bytes endpoint = 1;
-  bytes data = 2;
+  bytes payload = 2;
   google.protobuf.Timestamp enriched_at = 3;
 }
 
 message LoadRequest {
   string model = 1;
   string version = 2;
-  repeated LoadDocument documents = 3;
+  repeated LoadInput inputs = 3;
 }
 
 message LoadResponse {}

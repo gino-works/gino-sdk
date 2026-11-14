@@ -23,29 +23,29 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type LoadDocument struct {
+type LoadInput struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Endpoint      []byte                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
-	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	Payload       []byte                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
 	EnrichedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=enriched_at,json=enrichedAt,proto3" json:"enriched_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *LoadDocument) Reset() {
-	*x = LoadDocument{}
+func (x *LoadInput) Reset() {
+	*x = LoadInput{}
 	mi := &file_plugin_v1_loader_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *LoadDocument) String() string {
+func (x *LoadInput) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LoadDocument) ProtoMessage() {}
+func (*LoadInput) ProtoMessage() {}
 
-func (x *LoadDocument) ProtoReflect() protoreflect.Message {
+func (x *LoadInput) ProtoReflect() protoreflect.Message {
 	mi := &file_plugin_v1_loader_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,26 +57,26 @@ func (x *LoadDocument) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LoadDocument.ProtoReflect.Descriptor instead.
-func (*LoadDocument) Descriptor() ([]byte, []int) {
+// Deprecated: Use LoadInput.ProtoReflect.Descriptor instead.
+func (*LoadInput) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_loader_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *LoadDocument) GetEndpoint() []byte {
+func (x *LoadInput) GetEndpoint() []byte {
 	if x != nil {
 		return x.Endpoint
 	}
 	return nil
 }
 
-func (x *LoadDocument) GetData() []byte {
+func (x *LoadInput) GetPayload() []byte {
 	if x != nil {
-		return x.Data
+		return x.Payload
 	}
 	return nil
 }
 
-func (x *LoadDocument) GetEnrichedAt() *timestamppb.Timestamp {
+func (x *LoadInput) GetEnrichedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.EnrichedAt
 	}
@@ -87,7 +87,7 @@ type LoadRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Model         string                 `protobuf:"bytes,1,opt,name=model,proto3" json:"model,omitempty"`
 	Version       string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
-	Documents     []*LoadDocument        `protobuf:"bytes,3,rep,name=documents,proto3" json:"documents,omitempty"`
+	Inputs        []*LoadInput           `protobuf:"bytes,3,rep,name=inputs,proto3" json:"inputs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,9 +136,9 @@ func (x *LoadRequest) GetVersion() string {
 	return ""
 }
 
-func (x *LoadRequest) GetDocuments() []*LoadDocument {
+func (x *LoadRequest) GetInputs() []*LoadInput {
 	if x != nil {
-		return x.Documents
+		return x.Inputs
 	}
 	return nil
 }
@@ -183,16 +183,16 @@ var File_plugin_v1_loader_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_loader_proto_rawDesc = "" +
 	"\n" +
-	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"{\n" +
-	"\fLoadDocument\x12\x1a\n" +
-	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\fR\x04data\x12;\n" +
+	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"~\n" +
+	"\tLoadInput\x12\x1a\n" +
+	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x18\n" +
+	"\apayload\x18\x02 \x01(\fR\apayload\x12;\n" +
 	"\venriched_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"enrichedAt\"t\n" +
+	"enrichedAt\"k\n" +
 	"\vLoadRequest\x12\x14\n" +
 	"\x05model\x18\x01 \x01(\tR\x05model\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion\x125\n" +
-	"\tdocuments\x18\x03 \x03(\v2\x17.plugin.v1.LoadDocumentR\tdocuments\"\x0e\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\x12,\n" +
+	"\x06inputs\x18\x03 \x03(\v2\x14.plugin.v1.LoadInputR\x06inputs\"\x0e\n" +
 	"\fLoadResponse2H\n" +
 	"\rLoaderService\x127\n" +
 	"\x04Load\x12\x16.plugin.v1.LoadRequest\x1a\x17.plugin.v1.LoadResponseB7Z5github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1b\x06proto3"
@@ -211,14 +211,14 @@ func file_plugin_v1_loader_proto_rawDescGZIP() []byte {
 
 var file_plugin_v1_loader_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_plugin_v1_loader_proto_goTypes = []any{
-	(*LoadDocument)(nil),          // 0: plugin.v1.LoadDocument
+	(*LoadInput)(nil),             // 0: plugin.v1.LoadInput
 	(*LoadRequest)(nil),           // 1: plugin.v1.LoadRequest
 	(*LoadResponse)(nil),          // 2: plugin.v1.LoadResponse
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_plugin_v1_loader_proto_depIdxs = []int32{
-	3, // 0: plugin.v1.LoadDocument.enriched_at:type_name -> google.protobuf.Timestamp
-	0, // 1: plugin.v1.LoadRequest.documents:type_name -> plugin.v1.LoadDocument
+	3, // 0: plugin.v1.LoadInput.enriched_at:type_name -> google.protobuf.Timestamp
+	0, // 1: plugin.v1.LoadRequest.inputs:type_name -> plugin.v1.LoadInput
 	1, // 2: plugin.v1.LoaderService.Load:input_type -> plugin.v1.LoadRequest
 	2, // 3: plugin.v1.LoaderService.Load:output_type -> plugin.v1.LoadResponse
 	3, // [3:4] is the sub-list for method output_type

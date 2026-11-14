@@ -20,14 +20,14 @@ var (
 type LoadInput struct {
 	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
 	EnrichedAt time.Time
-	Data       json.RawMessage
+	Payload    json.RawMessage
 }
 
 // TypedLoadInput is a LoadInput with Data decoded.
 type TypedLoadInput[T any] struct {
 	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
 	EnrichedAt time.Time
-	Data       T
+	Payload    T
 }
 
 // LoadInputs is a list of LoadInput -- the loader client (gino) will send load inputs in batches
@@ -50,7 +50,7 @@ func DecodeLoadInputs[T any](
 	for idx := range in {
 		var value T
 
-		err := json.Unmarshal(in[idx].Data, &value)
+		err := json.Unmarshal(in[idx].Payload, &value)
 		if err != nil {
 			return nil, fmt.Errorf(
 				"%w: input %d (%s/%s): %w",
@@ -65,7 +65,7 @@ func DecodeLoadInputs[T any](
 		out[idx] = TypedLoadInput[T]{
 			Endpoint:   in[idx].Endpoint,
 			EnrichedAt: in[idx].EnrichedAt,
-			Data:       value,
+			Payload:    value,
 		}
 	}
 
