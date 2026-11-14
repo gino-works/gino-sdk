@@ -52,7 +52,10 @@ func DecodeEnrichInput[T any](
 		return EnrichedInput[T]{}, nil
 	}
 
-	out := EnrichedInput[T]{CollectedAt: raw.CollectedAt, Found: true}
+	out := EnrichedInput[T]{
+		CollectedAt: raw.CollectedAt,
+		Found:       true,
+	}
 
 	err := json.Unmarshal(raw.Payload, &out.Value)
 	if err != nil {
