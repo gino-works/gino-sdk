@@ -28,7 +28,9 @@ type LoadInput struct {
 type TypedLoadInput[T any] struct {
 	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
 	EnrichedAt time.Time
-	Payload    T
+	// input name and its collection time
+	Inputs  map[string]time.Time
+	Payload T
 }
 
 // LoadInputs is a list of LoadInput -- the loader client (gino) will send load inputs in batches
