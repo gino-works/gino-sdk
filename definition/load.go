@@ -17,20 +17,45 @@ var (
 	ErrInvalidInput    = errors.New("input cant be decoded")
 )
 
-// LoadInput is a single message for the loader server to load.
+// LoadInput is a single document for the loader server to load.
 type LoadInput struct {
 	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
 	EnrichedAt time.Time
-	Payload    json.RawMessage
+	// Inputs is when each input that went into this document was collected, by input name. For
+	// a time-series row this is the measurement time; EnrichedAt is only when the document was
+	// assembled.
+	Inputs  map[string]time.Time
+	Payload json.RawMessage
 }
 
-// TypedLoadInput is a LoadInput with Data decoded.
+// TypedLoadInput is a LoadInput with Payload decoded.
 type TypedLoadInput[T any] struct {
 	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
 	EnrichedAt time.Time
-	// input name and its collection time
-	Inputs  map[string]time.Time
-	Payload T
+	Inputs     map[string]time.Time
+	Payload    T
+}
+
+// CollectedAt returns the collection time of the named input, or false if that input did not go
+// into this document.
+func (t TypedLoadInput[T]) CollectedAt(input string) (time.Time, bool) {
+	at, ok := t.Inputs[input]
+
+	return at, ok
+}
+
+// OldestCollectedAt returns the earliest collection time across the inputs that went into this
+// document -- the conservative "how stale is this" answer. Zero if there are none.
+func (t TypedLoadInput[T]) OldestCollectedAt() time.Time {
+	var oldest time.Time
+
+	for _, at := range t.Inputs {
+		if oldest.IsZero() || at.Before(oldest) {
+			oldest = at
+		}
+	}
+
+	return oldest
 }
 
 // LoadInputs is a list of LoadInput -- the loader client (gino) will send load inputs in batches
@@ -69,6 +94,7 @@ func DecodeLoadInputs[T any](
 		out[idx] = TypedLoadInput[T]{
 			Endpoint:   in[idx].Endpoint,
 			EnrichedAt: in[idx].EnrichedAt,
+			Inputs:     in[idx].Inputs,
 			Payload:    value,
 		}
 	}
