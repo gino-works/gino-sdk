@@ -10,6 +10,10 @@ const (
 	// ConditionSecretsReplicated: every secret a managed location namespace asks for exists in
 	// a source and has been copied in.
 	ConditionSecretsReplicated = "SecretsReplicated"
+	// ConditionReady: the assignment's worker Deployment exists and is available -- set by
+	// whichever controller runs it (core for core assignments, the remote via the relay for
+	// remote ones).
+	ConditionReady = "Ready"
 )
 
 // Reasons for ConditionSecretsReplicated.
@@ -26,6 +30,15 @@ const (
 	ReasonLocationNotFound = "LocationNotFound"
 	ReasonAncestry         = "Ancestry"
 	ReasonBadSelector      = "BadSelector"
+)
+
+// Reasons for ConditionReady.
+const (
+	ReasonReady                 = "Ready"
+	ReasonDeploymentProgressing = "DeploymentProgressing"
+	ReasonSecretNotReady        = "SecretNotReady" // messaging identity or a credential not there yet
+	ReasonRelayPending          = "RelayPending"   // published, remote has not reported yet
+	ReasonRelayStale            = "RelayStale"     // remote stopped reporting
 )
 
 // UnschedulableReason identifies why an endpoint selected by a pipeline produced no work. Listed
