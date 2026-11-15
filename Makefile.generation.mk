@@ -6,6 +6,7 @@ run-deepcopy-gen: ## Run deepcopy-gen
 	paths=./apis/...
 
 run-generate-crds: ## Run controller-gen for crds
+	rm apis/crds/*.yaml || true
 	go tool controller-gen crd paths=./apis/... output:crd:dir=./apis/crds/
 
 k8s-generate: run-deepcopy-gen run-generate-crds fmt ## Run all code gen tasks

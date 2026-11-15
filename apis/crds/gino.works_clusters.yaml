@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.23.0
-  name: clusters.gino.io
+  name: clusters.gino.works
 spec:
-  group: gino.io
+  group: gino.works
   names:
     kind: Cluster
     listKind: ClusterList

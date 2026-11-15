@@ -50,7 +50,7 @@ type PlatformMatch struct {
 }
 
 // PlatformInput defines an input for this platform.
-// +kubebuilder:validation:XValidation:rule="(has(self.cli) ? 1 : 0) + (has(self.http) ? 1 : 0) == 1",message="Exactly one input type must be specified"
+// +kubebuilder:validation:XValidation:rule="(has(self.cli) ? 1 : 0) + (has(self.http) ? 1 : 0) + (has(self.tcp) ? 1 : 0) == 1",message="Exactly one input type must be specified"
 type PlatformInput struct {
 	// TCP is the tcp flavor of input.
 	// +optional
@@ -95,8 +95,28 @@ type CliCommand struct {
 	Input string `json:"input"`
 }
 
-// HTTPPlatformInput holds input data for a http input.
-type HTTPPlatformInput struct{}
+// HTTPPlatformInput holds input data for a http input. HTTP is too varied to describe (auth,
+// paging, token refresh, rate limits...), so an input names implementation functions the
+// plugin provides, and the plugin does whatever that API needs.
+type HTTPPlatformInput struct {
+	// Requests are all run, in order, against the endpoint's session as one unit; each produces
+	// one (or, for fan-out APIs, many) payloads handed to the transform keyed by name.
+	// +listType=atomic
+	// +kubebuilder:validation:MinItems=1
+	Requests []HTTPRequest `json:"requests"`
+}
+
+// HTTPRequest is one named call the plugin knows how to make.
+type HTTPRequest struct {
+	// Name -- name that transformers read to map to a transform.
+	Name string `json:"name"`
+	// Fn is the plugin function that makes the request.
+	Fn string `json:"fn"`
+	// Args are passed to Fn as-is; whatever that function documents (a path, an account id, a
+	// page size). Keeps one Fn serving several inputs without a code change.
+	// +optional
+	Args map[string]string `json:"args,omitempty"`
+}
 
 // PlatformTransform holds information about how to transform a given input.
 // +kubebuilder:validation:XValidation:rule="(has(self.fn) ? 1 : 0) == 1",message="Exactly one transform type must be specified"

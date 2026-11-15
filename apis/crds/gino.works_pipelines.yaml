@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.23.0
-  name: pipelines.gino.io
+  name: pipelines.gino.works
 spec:
-  group: gino.io
+  group: gino.works
   names:
     kind: Pipeline
     listKind: PipelineList
@@ -1095,6 +1095,39 @@ spec:
                                         type: object
                                       http:
                                         description: HTTP is the http flavor of input.
+                                        properties:
+                                          requests:
+                                            description: |-
+                                              Requests are all run, in order, against the endpoint's session as one unit; each produces
+                                              one (or, for fan-out APIs, many) payloads handed to the transform keyed by name.
+                                            items:
+                                              description: HTTPRequest is one named
+                                                call the plugin knows how to make.
+                                              properties:
+                                                args:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: |-
+                                                    Args are passed to Fn as-is; whatever that function documents (a path, an account id, a
+                                                    page size). Keeps one Fn serving several inputs without a code change.
+                                                  type: object
+                                                fn:
+                                                  description: Fn is the plugin function
+                                                    that makes the request.
+                                                  type: string
+                                                name:
+                                                  description: Name -- name that transformers
+                                                    read to map to a transform.
+                                                  type: string
+                                              required:
+                                              - fn
+                                              - name
+                                              type: object
+                                            minItems: 1
+                                            type: array
+                                            x-kubernetes-list-type: atomic
+                                        required:
+                                        - requests
                                         type: object
                                       tcp:
                                         description: TCP is the tcp flavor of input.
@@ -1123,7 +1156,7 @@ spec:
                                     x-kubernetes-validations:
                                     - message: Exactly one input type must be specified
                                       rule: '(has(self.cli) ? 1 : 0) + (has(self.http)
-                                        ? 1 : 0) == 1'
+                                        ? 1 : 0) + (has(self.tcp) ? 1 : 0) == 1'
                                   kind:
                                     description: CollectorKind is the kind of collector/protocol
                                       used to talk to an endpoint.
