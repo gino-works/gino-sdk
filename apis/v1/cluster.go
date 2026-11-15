@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	// ClusterNameCore is the name of the Cluster representing the core cluster itself. It is created
-	// by the core init and is never relayed to.
+	// ClusterNameCore is the name of the Cluster representing the core cluster itself. It is
+	// created by the core init and is never relayed to.
 	ClusterNameCore = "core"
 	// ClusterMessagingSecretPrefix is the prefix for the messaging secret for a cluster -- all
 	// workers share a single messaging secret for each remote cluster (or local), this is the
