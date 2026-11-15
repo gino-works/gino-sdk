@@ -232,7 +232,11 @@ type Collected struct {
 	CollectedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
 	// set when this part failed on a session that is otherwise fine (the device rejected the
 	// command, for example). gino does not publish it and logs error; the other parts still publish.
-	Error         string `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
+	Error string `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
+	// for fan-out collectors the collector implementation can fill this in (its just the
+	// WorkerAssignmentEndpoint json) -- if its set the gino side publishes with this endpoint data
+	// in the outgoing message.
+	Endpoint      []byte `protobuf:"bytes,5,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -293,6 +297,13 @@ func (x *Collected) GetError() string {
 		return x.Error
 	}
 	return ""
+}
+
+func (x *Collected) GetEndpoint() []byte {
+	if x != nil {
+		return x.Endpoint
+	}
+	return nil
 }
 
 type CollectResponse struct {
@@ -436,12 +447,13 @@ const file_plugin_v1_collector_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"T\n" +
 	"\x0eCollectRequest\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12&\n" +
-	"\x05input\x18\x02 \x01(\v2\x10.plugin.v1.InputR\x05input\"\x8e\x01\n" +
+	"\x05input\x18\x02 \x01(\v2\x10.plugin.v1.InputR\x05input\"\xaa\x01\n" +
 	"\tCollected\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\fR\apayload\x12=\n" +
 	"\fcollected_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12\x14\n" +
-	"\x05error\x18\x04 \x01(\tR\x05error\"E\n" +
+	"\x05error\x18\x04 \x01(\tR\x05error\x12\x1a\n" +
+	"\bendpoint\x18\x05 \x01(\fR\bendpoint\"E\n" +
 	"\x0fCollectResponse\x122\n" +
 	"\tcollected\x18\x01 \x03(\v2\x14.plugin.v1.CollectedR\tcollected\"*\n" +
 	"\fCloseRequest\x12\x1a\n" +

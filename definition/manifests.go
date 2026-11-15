@@ -21,10 +21,11 @@ type Manifests struct {
 	Locations      []ginosdkapisv1.Location
 	Endpoints      []ginosdkapisv1.Endpoint
 	EndpointGroups []ginosdkapisv1.EndpointGroup
+	Pipelines      []ginosdkapisv1.Pipeline
 }
 
 // Dump writes all the manifests out to path.
-func (m Manifests) Dump(path string) error { //nolint: gocyclo
+func (m Manifests) Dump(path string) error { //nolint: gocyclo,gocognit
 	for _, platform := range m.Platforms { //nolint: gocritic
 		b, err := yaml.Marshal(platform)
 		if err != nil {
@@ -123,6 +124,22 @@ func (m Manifests) Dump(path string) error { //nolint: gocyclo
 		)
 		if err != nil {
 			return fmt.Errorf("writing endpoint group %q: %w", endpointGroup.Name, err)
+		}
+	}
+
+	for _, pipeline := range m.Pipelines { //nolint: gocritic
+		b, err := yaml.Marshal(pipeline)
+		if err != nil {
+			return fmt.Errorf("marshaling pipeline %q: %w", pipeline.Name, err)
+		}
+
+		err = os.WriteFile(
+			fmt.Sprintf("%s/pipeline_%s.yaml", path, pipeline.Name),
+			b,
+			0o600, //nolint: mnd
+		)
+		if err != nil {
+			return fmt.Errorf("writing pipeline %q: %w", pipeline.Name, err)
 		}
 	}
 
@@ -237,6 +254,12 @@ func (r *Registry) Manifests() Manifests {
 		groups = append(groups, v)
 	}
 
+	pipelines := make([]ginosdkapisv1.Pipeline, 0, len(r.pipelines))
+
+	for _, v := range r.pipelines { //nolint: gocritic
+		pipelines = append(pipelines, v)
+	}
+
 	return Manifests{
 		Platforms:      platforms,
 		Models:         models,
@@ -244,5 +267,6 @@ func (r *Registry) Manifests() Manifests {
 		Locations:      locations,
 		Endpoints:      endpoints,
 		EndpointGroups: groups,
+		Pipelines:      pipelines,
 	}
 }

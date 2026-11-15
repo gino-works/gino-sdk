@@ -29,8 +29,7 @@ type Registry struct {
 	locations map[string]ginosdkapisv1.Location
 	endpoints map[string]ginosdkapisv1.Endpoint
 	groups    map[string]ginosdkapisv1.EndpointGroup
-
-	// TODO - pipelines but not sure if i want them down here or more "required".
+	pipelines map[string]ginosdkapisv1.Pipeline
 }
 
 // New builds a Registry.
@@ -46,6 +45,7 @@ func New(
 		locations: map[string]ginosdkapisv1.Location{},
 		endpoints: map[string]ginosdkapisv1.Endpoint{},
 		groups:    map[string]ginosdkapisv1.EndpointGroup{},
+		pipelines: map[string]ginosdkapisv1.Pipeline{},
 	}
 
 	for _, opt := range options {

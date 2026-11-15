@@ -52,6 +52,10 @@ message Collected {
   // set when this part failed on a session that is otherwise fine (the device rejected the
   // command, for example). gino does not publish it and logs error; the other parts still publish.
   string error = 4;
+  // for fan-out collectors the collector implementation can fill this in (its just the
+  // WorkerAssignmentEndpoint json) -- if its set the gino side publishes with this endpoint data
+  // in the outgoing message.
+  bytes endpoint = 5;
 }
 
 message CollectResponse {
