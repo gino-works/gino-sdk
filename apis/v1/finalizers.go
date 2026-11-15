@@ -5,6 +5,7 @@ type Finalizer string
 
 // enumerations of Finalizer.
 const (
-	FinalizerMessaging Finalizer = "gino.works/messaging-cleanup"
-	FinalizerCluster   Finalizer = "gino.works/cluster-cleanup"
+	FinalizerMessaging   Finalizer = "gino.works/messaging-cleanup"
+	FinalizerAssignments Finalizer = "gino.works/assignment-cleanup"
+	FinalizerCluster     Finalizer = "gino.works/cluster-cleanup"
 )
