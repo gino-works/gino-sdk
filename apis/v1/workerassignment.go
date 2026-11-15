@@ -96,4 +96,27 @@ type WorkerAssignmentEndpoint struct {
 }
 
 // WorkerAssignmentStatus is the status for a WorkerAssignment resource.
-type WorkerAssignmentStatus struct{}
+type WorkerAssignmentStatus struct {
+	// Conditions: Ready (from whichever realizer runs it, core or remote).
+	// +listType=map
+	// +listMapKey=type
+	// +optional
+	Conditions []apimachineryapismetav1.Condition `json:"conditions,omitempty"`
+
+	// Relay is set by core for assignments that run on a remote cluster.
+	// +optional
+	Relay *WorkerAssignmentRelayStatus `json:"relay,omitempty"`
+}
+
+// WorkerAssignmentRelayStatus is how far along the relay is for a remote assignment.
+type WorkerAssignmentRelayStatus struct {
+	// PublishedRevision is the resourceVersion core last published.
+	PublishedRevision string `json:"publishedRevision,omitempty"`
+	// AppliedRevision is the revision the remote last reported holding; equal to
+	// PublishedRevision when the remote is caught up.
+	// +optional
+	AppliedRevision string `json:"appliedRevision,omitempty"`
+	// LastReported is when the remote last said anything about this assignment.
+	// +optional
+	LastReported *apimachineryapismetav1.Time `json:"lastReported,omitempty"`
+}
