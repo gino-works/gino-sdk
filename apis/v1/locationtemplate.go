@@ -14,7 +14,7 @@ type LocationTemplate struct {
 	// DisableCollection ensures no workers are spawned for this endpoint.
 	// +optional
 	DisableCollection *bool `json:"disableCollection,omitempty"`
-	// TYpe is the type of the location.
+	// Type is the type of the location.
 	// +optional
 	Type string `json:"type,omitempty"`
 	// Tags hold additional k:v data for the endpoint. These are not used for selection (thats what

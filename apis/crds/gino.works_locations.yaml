@@ -96,7 +96,7 @@ spec:
                   the regular labels are for) but instead for expressing additional context about the endpoint.
                 type: object
               type:
-                description: TYpe is the type of the location.
+                description: Type is the type of the location.
                 type: string
             type: object
           status:
@@ -309,7 +309,7 @@ spec:
                       the regular labels are for) but instead for expressing additional context about the endpoint.
                     type: object
                   type:
-                    description: TYpe is the type of the location.
+                    description: Type is the type of the location.
                     type: string
                 type: object
             type: object
