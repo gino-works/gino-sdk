@@ -159,3 +159,32 @@ func (p *PlatformInput) Kind() CollectorKind {
 		return ""
 	}
 }
+
+// Tasks returns the names of the input's parts (cli commands, http requests, tcp probes), in the
+// platform's order. An input is complete once a payload for every one of these is present.
+func (p *PlatformInput) Tasks() []string {
+	var names []string
+
+	switch {
+	case p.Cli != nil:
+		names = make([]string, len(p.Cli.Commands))
+
+		for idx := range p.Cli.Commands {
+			names[idx] = p.Cli.Commands[idx].Name
+		}
+	case p.HTTP != nil:
+		names = make([]string, len(p.HTTP.Requests))
+
+		for idx := range p.HTTP.Requests {
+			names[idx] = p.HTTP.Requests[idx].Name
+		}
+	case p.TCP != nil:
+		names = make([]string, len(p.TCP.Probes))
+
+		for idx := range p.TCP.Probes {
+			names[idx] = p.TCP.Probes[idx].Name
+		}
+	}
+
+	return names
+}

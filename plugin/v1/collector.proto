@@ -44,18 +44,23 @@ message CollectRequest {
 // Collected is one payload out of an input; an input may produce several (one per command,
 // request or probe).
 message Collected {
+  // what the collector calls this payload; usually the task name, differs only for fan-out
+  // collectors producing several payloads per task.
   string name = 1;
-  bytes payload = 2;
+  // the part (task) of the input that produced this payload: the CliCommand/HTTPRequest/TCPProbe
+  // name. required -- gino publishes, and the enricher caches, each part under it.
+  string task = 2;
+  bytes payload = 3;
   // when the data is from, if the plugin knows better than gino (a device timestamp). Unset
   // means the time gino handed out the batch.
-  google.protobuf.Timestamp collected_at = 3;
+  google.protobuf.Timestamp collected_at = 4;
   // set when this part failed on a session that is otherwise fine (the device rejected the
   // command, for example). gino does not publish it and logs error; the other parts still publish.
-  string error = 4;
+  string error = 5;
   // for fan-out collectors the collector implementation can fill this in (its just the
   // WorkerAssignmentEndpoint json) -- if its set the gino side publishes with this endpoint data
   // in the outgoing message.
-  bytes endpoint = 5;
+  bytes endpoint = 6;
 }
 
 message CollectResponse {
