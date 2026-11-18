@@ -64,6 +64,44 @@ func EnrichInputsFromProto(
 	return out
 }
 
+// LoadInputsFromProto converts a Load RPC request into LoadInputs. Sources on the wire are per
+// task; ModelInputs is per model input, so a model input of several tasks gets its oldest task's
+// collection time -- the conservative "how stale is this" answer.
+func LoadInputsFromProto(
+	req *ginosdkpluginv1.LoadRequest,
+) (LoadInputs, error) {
+	out := make(LoadInputs, len(req.GetInputs()))
+
+	for idx, in := range req.GetInputs() {
+		var endpoint ginosdkapisv1.WorkerAssignmentEndpoint
+
+		err := json.Unmarshal(in.GetEndpoint(), &endpoint)
+		if err != nil {
+			return nil, fmt.Errorf("decoding endpoint of input %d: %w", idx, err)
+		}
+
+		modelInputs := make(map[string]time.Time, len(in.GetSources()))
+
+		for _, source := range in.GetSources() {
+			at := protoTime(source.GetCollectedAt())
+
+			current, ok := modelInputs[source.GetModelInput()]
+			if !ok || at.Before(current) {
+				modelInputs[source.GetModelInput()] = at
+			}
+		}
+
+		out[idx] = LoadInput{
+			Endpoint:    endpoint,
+			EnrichedAt:  protoTime(in.GetEnrichedAt()),
+			ModelInputs: modelInputs,
+			Payload:     in.GetPayload(),
+		}
+	}
+
+	return out, nil
+}
+
 // protoTime is ts as a time, unset (nil) as the zero time rather than the unix epoch.
 func protoTime(ts *timestamppb.Timestamp) time.Time {
 	if ts == nil {
