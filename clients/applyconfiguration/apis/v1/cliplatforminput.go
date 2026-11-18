@@ -2,11 +2,16 @@
 
 package v1
 
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // CliPlatformInputApplyConfiguration represents a declarative configuration of the CliPlatformInput type for use
 // with apply.
 //
 // CliPlatformInput holds input data for a cli input.
 type CliPlatformInputApplyConfiguration struct {
+	CliOptionsApplyConfiguration `json:""`
 	// Commands are all run, in order, on the endpoint's session. Each command is one part (task)
 	// of the input: transformed on its own, cached by the enricher under its name, and the input
 	// is complete once every part is present.
@@ -17,6 +22,14 @@ type CliPlatformInputApplyConfiguration struct {
 // apply.
 func CliPlatformInput() *CliPlatformInputApplyConfiguration {
 	return &CliPlatformInputApplyConfiguration{}
+}
+
+// WithTimeout sets the Timeout field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Timeout field is set to the value of the last call.
+func (b *CliPlatformInputApplyConfiguration) WithTimeout(value metav1.Duration) *CliPlatformInputApplyConfiguration {
+	b.CliOptionsApplyConfiguration.Timeout = &value
+	return b
 }
 
 // WithCommands adds the given value to the Commands field in the declarative configuration

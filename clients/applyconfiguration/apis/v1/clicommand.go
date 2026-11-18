@@ -2,11 +2,16 @@
 
 package v1
 
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // CliCommandApplyConfiguration represents a declarative configuration of the CliCommand type for use
 // with apply.
 //
 // CliCommand is a single command/input to a cli device.
 type CliCommandApplyConfiguration struct {
+	CliOptionsApplyConfiguration `json:""`
 	// Name is the part (task) name: unique within the input, what transforms switch on and what
 	// the enricher caches the part under.
 	Name *string `json:"name,omitempty"`
@@ -18,6 +23,14 @@ type CliCommandApplyConfiguration struct {
 // apply.
 func CliCommand() *CliCommandApplyConfiguration {
 	return &CliCommandApplyConfiguration{}
+}
+
+// WithTimeout sets the Timeout field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Timeout field is set to the value of the last call.
+func (b *CliCommandApplyConfiguration) WithTimeout(value metav1.Duration) *CliCommandApplyConfiguration {
+	b.CliOptionsApplyConfiguration.Timeout = &value
+	return b
 }
 
 // WithName sets the Name field in the declarative configuration to the given value

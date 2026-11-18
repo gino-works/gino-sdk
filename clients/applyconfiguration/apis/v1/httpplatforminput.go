@@ -2,6 +2,10 @@
 
 package v1
 
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // HTTPPlatformInputApplyConfiguration represents a declarative configuration of the HTTPPlatformInput type for use
 // with apply.
 //
@@ -9,6 +13,7 @@ package v1
 // paging, token refresh, rate limits...), so an input names implementation functions the
 // plugin provides, and the plugin does whatever that API needs.
 type HTTPPlatformInputApplyConfiguration struct {
+	HTTPOptionsApplyConfiguration `json:""`
 	// Requests are all run, in order, against the endpoint's session. Each request is one part
 	// (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
 	// transformed on their own; the input is complete once every part is present.
@@ -19,6 +24,14 @@ type HTTPPlatformInputApplyConfiguration struct {
 // apply.
 func HTTPPlatformInput() *HTTPPlatformInputApplyConfiguration {
 	return &HTTPPlatformInputApplyConfiguration{}
+}
+
+// WithTimeout sets the Timeout field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Timeout field is set to the value of the last call.
+func (b *HTTPPlatformInputApplyConfiguration) WithTimeout(value metav1.Duration) *HTTPPlatformInputApplyConfiguration {
+	b.HTTPOptionsApplyConfiguration.Timeout = &value
+	return b
 }
 
 // WithRequests adds the given value to the Requests field in the declarative configuration

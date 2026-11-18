@@ -2,11 +2,16 @@
 
 package v1
 
+import (
+	apisv1 "github.com/gino-works/gino-sdk/apis/v1"
+)
+
 // TCPProbeApplyConfiguration represents a declarative configuration of the TCPProbe type for use
 // with apply.
 //
 // TCPProbe holds data about a tcp probe.
 type TCPProbeApplyConfiguration struct {
+	apisv1.TCPOptions `json:""`
 	// Name is the part (task) name: unique within the input, what transforms switch on and what
 	// the enricher caches the part under.
 	Name *string `json:"name,omitempty"`

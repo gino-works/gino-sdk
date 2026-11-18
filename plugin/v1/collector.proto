@@ -10,9 +10,7 @@ option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
 message Input {
   // the logical, model facing input (ModelInput.name) the task belongs to.
   string name = 1;
-  // Platform.spec.inputs[name].<kind> as JSON, narrowed to the one task being collected: a
-  // CliPlatformInput with exactly one command, an HTTPPlatformInput with exactly one request, a
-  // TCPPlatformInput with exactly one probe.
+  // the actual task to execute -- the CliCommand/HTTPRequest/TCPProbe as json.
   bytes impl = 2;
   // the task: the CliCommand/HTTPRequest/TCPProbe name impl holds. Informational -- impl already
   // is that one part -- for logging and for plugins that key anything per task.

@@ -72,6 +72,8 @@ spec:
                                 minLength: 1
                                 pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                                 type: string
+                              timeout:
+                                type: string
                             required:
                             - input
                             - name
@@ -81,6 +83,8 @@ spec:
                           x-kubernetes-list-map-keys:
                           - name
                           x-kubernetes-list-type: map
+                        timeout:
+                          type: string
                       required:
                       - commands
                       type: object
@@ -115,6 +119,8 @@ spec:
                                 minLength: 1
                                 pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                                 type: string
+                              timeout:
+                                type: string
                             required:
                             - fn
                             - name
@@ -124,6 +130,8 @@ spec:
                           x-kubernetes-list-map-keys:
                           - name
                           x-kubernetes-list-type: map
+                        timeout:
+                          type: string
                       required:
                       - requests
                       type: object

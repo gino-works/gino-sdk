@@ -34,6 +34,26 @@ linters:
           sizeThreshold: 512
     gocyclo:
       min-complexity: 15
+    importas:
+      alias:
+        - pkg: github\.com/gino-works/gino-sdk/(\w+)
+          alias: ginosdk$1
+        - pkg: github\.com/gino-works/gino-sdk/(\w+)/(\w+)
+          alias: ginosdk$1$2
+        - pkg: github\.com/gino-works/gino-sdk/(\w+)/(\w+)/(\w+)
+          alias: ginosdk$1$2$3
+        - pkg: k8s.io/api/(\w+)
+          alias: k8s$1
+        - pkg: k8s.io/api/(\w+)/(\w+)
+          alias: k8s$1$2
+        - pkg: k8s.io/apimachinery/pkg/(\w+)
+          alias: apimachinery$1
+        - pkg: k8s.io/apimachinery/pkg/(\w+)/(\w+)
+          alias: apimachinery$1$2
+        - pkg: k8s.io/apimachinery/pkg/(\w+)/(\w+)/(\w+)
+          alias: apimachinery$1$2$3
+        - pkg: k8s.io/apimachinery/pkg/(\w+)/(\w+)/(\w+)/(\w+)
+          alias: apimachinery$1$2$3$4
     lll:
       line-length: 100
       tab-width: 4

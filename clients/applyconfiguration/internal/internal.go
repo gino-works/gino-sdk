@@ -82,9 +82,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.gino-works.gino-sdk.apis.v1.ResolvedModel
           elementRelationship: atomic
-    - name: impl
-      type:
-        namedType: com.github.gino-works.gino-sdk.apis.v1.PlatformInput
     - name: kind
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.CollectorKind
@@ -94,6 +91,27 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: require
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.ModelRequirement
+    - name: tasks
+      type:
+        list:
+          elementType:
+            namedType: com.github.gino-works.gino-sdk.apis.v1.AssignedTask
+          elementRelationship: atomic
+- name: com.github.gino-works.gino-sdk.apis.v1.AssignedTask
+  map:
+    fields:
+    - name: cli
+      type:
+        namedType: com.github.gino-works.gino-sdk.apis.v1.CliCommand
+    - name: http
+      type:
+        namedType: com.github.gino-works.gino-sdk.apis.v1.HTTPRequest
+    - name: name
+      type:
+        scalar: string
+    - name: tcp
+      type:
+        namedType: com.github.gino-works.gino-sdk.apis.v1.TCPProbe
 - name: com.github.gino-works.gino-sdk.apis.v1.CliCommand
   map:
     fields:
@@ -103,6 +121,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: timeout
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.gino-works.gino-sdk.apis.v1.CliPlatformInput
   map:
     fields:
@@ -114,6 +135,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementRelationship: associative
           keys:
           - name
+    - name: timeout
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.gino-works.gino-sdk.apis.v1.CliWorkerSpec
   map:
     fields:
@@ -443,6 +467,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementRelationship: associative
           keys:
           - name
+    - name: timeout
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.gino-works.gino-sdk.apis.v1.HTTPRequest
   map:
     fields:
@@ -457,6 +484,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: timeout
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.gino-works.gino-sdk.apis.v1.HTTPWorkerSpec
   map:
     fields:

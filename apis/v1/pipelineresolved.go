@@ -36,9 +36,36 @@ type ResolvedModel struct {
 type AssignedInput struct {
 	Name      string           `json:"name"`
 	Kind      CollectorKind    `json:"kind"`
-	Impl      PlatformInput    `json:"impl"`
+	Tasks     []AssignedTask   `json:"tasks"`
 	Require   ModelRequirement `json:"require"`
 	Consumers []ResolvedModel  `json:"consumers"` // model names
+}
+
+// AssignedTask is a singular resolved task for an assignment.
+// +kubebuilder:validation:XValidation:rule="(has(self.cli) ? 1 : 0) + (has(self.http) ? 1 : 0) + (has(self.tcp) ? 1 : 0) == 1",message="Exactly one input type must be specified"
+type AssignedTask struct {
+	// Name is redundant here since the tasks include the name but this is used for list sorting in
+	// the AssignedInput Tasks list.
+	Name string `json:"name"`
+
+	Cli  *CliCommand  `json:"cli,omitempty"`
+	HTTP *HTTPRequest `json:"http,omitempty"`
+	TCP  *TCPProbe    `json:"tcp,omitempty"`
+}
+
+// Impl returns the set task object for the AssignedTask.
+func (t *AssignedTask) Impl() any {
+	switch {
+	case t.Cli != nil:
+		return t.Cli
+	case t.HTTP != nil:
+		return t.HTTP
+	case t.TCP != nil:
+		return t.TCP
+	default:
+		// shouldnt happen ever since cel rules will ensure one is set
+		return nil
+	}
 }
 
 // AssignedEndpoint is one endpoint's worth of work for one collector kind.

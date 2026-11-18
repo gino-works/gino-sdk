@@ -20,8 +20,12 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apisv1.AssignedEndpointApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("AssignedInput"):
 		return &apisv1.AssignedInputApplyConfiguration{}
+	case v1.SchemeGroupVersion.WithKind("AssignedTask"):
+		return &apisv1.AssignedTaskApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("CliCommand"):
 		return &apisv1.CliCommandApplyConfiguration{}
+	case v1.SchemeGroupVersion.WithKind("CliOptions"):
+		return &apisv1.CliOptionsApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("CliPlatformInput"):
 		return &apisv1.CliPlatformInputApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("CliWorkerSpec"):
@@ -52,6 +56,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apisv1.EnrichSpecApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("EnvVar"):
 		return &apisv1.EnvVarApplyConfiguration{}
+	case v1.SchemeGroupVersion.WithKind("HTTPOptions"):
+		return &apisv1.HTTPOptionsApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("HTTPPlatformInput"):
 		return &apisv1.HTTPPlatformInputApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("HTTPRequest"):

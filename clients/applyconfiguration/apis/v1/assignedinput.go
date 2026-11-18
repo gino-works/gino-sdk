@@ -14,7 +14,7 @@ import (
 type AssignedInputApplyConfiguration struct {
 	Name      *string                             `json:"name,omitempty"`
 	Kind      *apisv1.CollectorKind               `json:"kind,omitempty"`
-	Impl      *PlatformInputApplyConfiguration    `json:"impl,omitempty"`
+	Tasks     []AssignedTaskApplyConfiguration    `json:"tasks,omitempty"`
 	Require   *ModelRequirementApplyConfiguration `json:"require,omitempty"`
 	Consumers []ResolvedModelApplyConfiguration   `json:"consumers,omitempty"`
 }
@@ -41,11 +41,16 @@ func (b *AssignedInputApplyConfiguration) WithKind(value apisv1.CollectorKind) *
 	return b
 }
 
-// WithImpl sets the Impl field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Impl field is set to the value of the last call.
-func (b *AssignedInputApplyConfiguration) WithImpl(value *PlatformInputApplyConfiguration) *AssignedInputApplyConfiguration {
-	b.Impl = value
+// WithTasks adds the given value to the Tasks field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tasks field.
+func (b *AssignedInputApplyConfiguration) WithTasks(values ...*AssignedTaskApplyConfiguration) *AssignedInputApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithTasks")
+		}
+		b.Tasks = append(b.Tasks, *values[i])
+	}
 	return b
 }
 

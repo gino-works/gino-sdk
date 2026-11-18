@@ -166,128 +166,6 @@ spec:
                           - version
                           type: object
                         type: array
-                      impl:
-                        description: PlatformInput defines an input for this platform.
-                        properties:
-                          cli:
-                            description: Cli is the cli flavor of input.
-                            properties:
-                              commands:
-                                description: |-
-                                  Commands are all run, in order, on the endpoint's session. Each command is one part (task)
-                                  of the input: transformed on its own, cached by the enricher under its name, and the input
-                                  is complete once every part is present.
-                                items:
-                                  description: CliCommand is a single command/input
-                                    to a cli device.
-                                  properties:
-                                    input:
-                                      description: Input -- the actual input sent
-                                        to the device.
-                                      type: string
-                                    name:
-                                      description: |-
-                                        Name is the part (task) name: unique within the input, what transforms switch on and what
-                                        the enricher caches the part under.
-                                      maxLength: 63
-                                      minLength: 1
-                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
-                                      type: string
-                                  required:
-                                  - input
-                                  - name
-                                  type: object
-                                minItems: 1
-                                type: array
-                                x-kubernetes-list-map-keys:
-                                - name
-                                x-kubernetes-list-type: map
-                            required:
-                            - commands
-                            type: object
-                          http:
-                            description: HTTP is the http flavor of input.
-                            properties:
-                              requests:
-                                description: |-
-                                  Requests are all run, in order, against the endpoint's session. Each request is one part
-                                  (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
-                                  transformed on their own; the input is complete once every part is present.
-                                items:
-                                  description: HTTPRequest is one named call the plugin
-                                    knows how to make.
-                                  properties:
-                                    args:
-                                      additionalProperties:
-                                        type: string
-                                      description: |-
-                                        Args are passed to Fn as-is; whatever that function documents (a path, an account id, a
-                                        page size). Keeps one Fn serving several inputs without a code change.
-                                      type: object
-                                    fn:
-                                      description: Fn is the plugin function that
-                                        makes the request.
-                                      type: string
-                                    name:
-                                      description: |-
-                                        Name is the part (task) name: unique within the input, what transforms switch on and what
-                                        the enricher caches the part under.
-                                      maxLength: 63
-                                      minLength: 1
-                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
-                                      type: string
-                                  required:
-                                  - fn
-                                  - name
-                                  type: object
-                                minItems: 1
-                                type: array
-                                x-kubernetes-list-map-keys:
-                                - name
-                                x-kubernetes-list-type: map
-                            required:
-                            - requests
-                            type: object
-                          tcp:
-                            description: TCP is the tcp flavor of input.
-                            properties:
-                              probes:
-                                description: |-
-                                  Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
-                                  input: transformed on its own, cached by the enricher under its name, and the input is
-                                  complete once every part is present.
-                                items:
-                                  description: TCPProbe holds data about a tcp probe.
-                                  properties:
-                                    name:
-                                      description: |-
-                                        Name is the part (task) name: unique within the input, what transforms switch on and what
-                                        the enricher caches the part under.
-                                      maxLength: 63
-                                      minLength: 1
-                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
-                                      type: string
-                                    port:
-                                      maximum: 65535
-                                      minimum: 1
-                                      type: integer
-                                  required:
-                                  - name
-                                  - port
-                                  type: object
-                                minItems: 1
-                                type: array
-                                x-kubernetes-list-map-keys:
-                                - name
-                                x-kubernetes-list-type: map
-                            required:
-                            - probes
-                            type: object
-                        type: object
-                        x-kubernetes-validations:
-                        - message: Exactly one input type must be specified
-                          rule: '(has(self.cli) ? 1 : 0) + (has(self.http) ? 1 : 0)
-                            + (has(self.tcp) ? 1 : 0) == 1'
                       kind:
                         description: CollectorKind is the kind of collector/protocol
                           used to talk to an endpoint.
@@ -311,12 +189,100 @@ spec:
                         - message: Exactly one requirement type must be specified
                           rule: '(has(self.freshness) ? 1 : 0) + (has(self.at) ? 1
                             : 0) == 1'
+                      tasks:
+                        items:
+                          description: AssignedTask is a singular resolved task for
+                            an assignment.
+                          properties:
+                            cli:
+                              description: CliCommand is a single command/input to
+                                a cli device.
+                              properties:
+                                input:
+                                  description: Input -- the actual input sent to the
+                                    device.
+                                  type: string
+                                name:
+                                  description: |-
+                                    Name is the part (task) name: unique within the input, what transforms switch on and what
+                                    the enricher caches the part under.
+                                  maxLength: 63
+                                  minLength: 1
+                                  pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+                                  type: string
+                                timeout:
+                                  type: string
+                              required:
+                              - input
+                              - name
+                              type: object
+                            http:
+                              description: HTTPRequest is one named call the plugin
+                                knows how to make.
+                              properties:
+                                args:
+                                  additionalProperties:
+                                    type: string
+                                  description: |-
+                                    Args are passed to Fn as-is; whatever that function documents (a path, an account id, a
+                                    page size). Keeps one Fn serving several inputs without a code change.
+                                  type: object
+                                fn:
+                                  description: Fn is the plugin function that makes
+                                    the request.
+                                  type: string
+                                name:
+                                  description: |-
+                                    Name is the part (task) name: unique within the input, what transforms switch on and what
+                                    the enricher caches the part under.
+                                  maxLength: 63
+                                  minLength: 1
+                                  pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+                                  type: string
+                                timeout:
+                                  type: string
+                              required:
+                              - fn
+                              - name
+                              type: object
+                            name:
+                              description: |-
+                                Name is redundant here since the tasks include the name but this is used for list sorting in
+                                the AssignedInput Tasks list.
+                              type: string
+                            tcp:
+                              description: TCPProbe holds data about a tcp probe.
+                              properties:
+                                name:
+                                  description: |-
+                                    Name is the part (task) name: unique within the input, what transforms switch on and what
+                                    the enricher caches the part under.
+                                  maxLength: 63
+                                  minLength: 1
+                                  pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+                                  type: string
+                                port:
+                                  maximum: 65535
+                                  minimum: 1
+                                  type: integer
+                              required:
+                              - name
+                              - port
+                              type: object
+                          required:
+                          - name
+                          type: object
+                          x-kubernetes-validations:
+                          - message: Exactly one input type must be specified
+                            rule: '(has(self.cli) ? 1 : 0) + (has(self.http) ? 1 :
+                              0) + (has(self.tcp) ? 1 : 0) == 1'
+                        type: array
                     required:
                     - consumers
-                    - impl
                     - kind
                     - name
                     - require
+                    - tasks
                     type: object
                   type: array
                 description: |-

@@ -28,9 +28,7 @@ type Input struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the logical, model facing input (ModelInput.name) the task belongs to.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Platform.spec.inputs[name].<kind> as JSON, narrowed to the one task being collected: a
-	// CliPlatformInput with exactly one command, an HTTPPlatformInput with exactly one request, a
-	// TCPPlatformInput with exactly one probe.
+	// the actual task to execute -- the CliCommand/HTTPRequest/TCPProbe as json.
 	Impl []byte `protobuf:"bytes,2,opt,name=impl,proto3" json:"impl,omitempty"`
 	// the task: the CliCommand/HTTPRequest/TCPProbe name impl holds. Informational -- impl already
 	// is that one part -- for logging and for plugins that key anything per task.

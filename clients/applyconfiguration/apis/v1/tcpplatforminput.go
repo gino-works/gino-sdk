@@ -2,11 +2,17 @@
 
 package v1
 
+import (
+	apisv1 "github.com/gino-works/gino-sdk/apis/v1"
+)
+
 // TCPPlatformInputApplyConfiguration represents a declarative configuration of the TCPPlatformInput type for use
 // with apply.
 //
-// TCPPlatformInput holds input data for a tcp input.
+// TCPPlatformInput holds input data for a tcp input. When set on the "Input" is the default
+// for every child task, tasks override this if set, otherwise inherit it.
 type TCPPlatformInputApplyConfiguration struct {
+	apisv1.TCPOptions `json:""`
 	// Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
 	// input: transformed on its own, cached by the enricher under its name, and the input is
 	// complete once every part is present.
