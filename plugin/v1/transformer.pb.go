@@ -31,13 +31,10 @@ type TransformRequest struct {
 	Input string `protobuf:"bytes,2,opt,name=input,proto3" json:"input,omitempty"`
 	// the part of the input this payload is: the CliCommand/HTTPRequest/TCPProbe name. what a
 	// transform switches on when an input is made of several parts.
-	Task string `protobuf:"bytes,3,opt,name=task,proto3" json:"task,omitempty"`
-	// Collected.name -- what the collector called this payload. usually the task; differs only for
-	// fan-out collectors that produce several payloads per task.
-	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	Payload       []byte                 `protobuf:"bytes,5,opt,name=payload,proto3" json:"payload,omitempty"`
-	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
-	Fn            []string               `protobuf:"bytes,7,rep,name=fn,proto3" json:"fn,omitempty"` // Platform.spec.transform[input], in order
+	Task          string                 `protobuf:"bytes,3,opt,name=task,proto3" json:"task,omitempty"`
+	Payload       []byte                 `protobuf:"bytes,4,opt,name=payload,proto3" json:"payload,omitempty"`
+	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	Fn            []string               `protobuf:"bytes,6,rep,name=fn,proto3" json:"fn,omitempty"` // Platform.spec.transform[input], in order
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -89,13 +86,6 @@ func (x *TransformRequest) GetInput() string {
 func (x *TransformRequest) GetTask() string {
 	if x != nil {
 		return x.Task
-	}
-	return ""
-}
-
-func (x *TransformRequest) GetName() string {
-	if x != nil {
-		return x.Name
 	}
 	return ""
 }
@@ -169,15 +159,14 @@ var File_plugin_v1_transformer_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_transformer_proto_rawDesc = "" +
 	"\n" +
-	"\x1bplugin/v1/transformer.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd5\x01\n" +
+	"\x1bplugin/v1/transformer.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc1\x01\n" +
 	"\x10TransformRequest\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x14\n" +
 	"\x05input\x18\x02 \x01(\tR\x05input\x12\x12\n" +
-	"\x04task\x18\x03 \x01(\tR\x04task\x12\x12\n" +
-	"\x04name\x18\x04 \x01(\tR\x04name\x12\x18\n" +
-	"\apayload\x18\x05 \x01(\fR\apayload\x12=\n" +
-	"\fcollected_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12\x0e\n" +
-	"\x02fn\x18\a \x03(\tR\x02fn\"'\n" +
+	"\x04task\x18\x03 \x01(\tR\x04task\x12\x18\n" +
+	"\apayload\x18\x04 \x01(\fR\apayload\x12=\n" +
+	"\fcollected_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12\x0e\n" +
+	"\x02fn\x18\x06 \x03(\tR\x02fn\"'\n" +
 	"\x11TransformResponse\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data2\\\n" +
 	"\x12TransformerService\x12F\n" +

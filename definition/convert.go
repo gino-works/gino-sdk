@@ -27,7 +27,6 @@ func TransformRequestFromProto(
 		Endpoint:    endpoint,
 		Input:       req.GetInput(),
 		Task:        req.GetTask(),
-		Name:        req.GetName(),
 		CollectedAt: protoTime(req.GetCollectedAt()),
 		Payload:     req.GetPayload(),
 	}, nil

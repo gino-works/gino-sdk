@@ -22,10 +22,7 @@ type TransformRequest struct {
 	// Input is the logical input (ModelInput.name) this part belongs to.
 	Input string
 	// Task is the part of the input: the CliCommand/HTTPRequest/TCPProbe name.
-	Task string
-	// Name is what the collector called this payload; usually Task, differs only for fan-out
-	// collectors that produce several payloads per task.
-	Name        string
+	Task        string
 	CollectedAt time.Time
 	Payload     []byte
 }

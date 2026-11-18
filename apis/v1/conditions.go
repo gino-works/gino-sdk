@@ -52,12 +52,12 @@ const (
 	UnschedulableReasonDisabled        UnschedulableReason = "Disabled"
 	UnschedulableReasonNoCluster       UnschedulableReason = "NoCluster"
 	UnschedulableReasonNoPlatformMatch UnschedulableReason = "NoPlatformMatch"
-	// NoModelCoverage: the platform matched but provides every input of none of the pipeline's
-	// model versions, so no model can be produced for the endpoint. The gaps are in
+	// UnschedulableReasonNoModelCoverage: the platform matched but provides every input of none of
+	//  the pipeline's model versions, so no model can be produced for the endpoint. The gaps are in
 	// PipelineResolved.MissingModelCoverage for the platform.
 	UnschedulableReasonNoModelCoverage UnschedulableReason = "NoModelCoverage"
-	// NoInputs: the platform covers a model version but its inputs resolve to no work (should not
-	// happen -- a covered model has at least one input the platform provides).
+	// UnschedulableReasonNoInputs: the platform covers a model version but its inputs resolve to no
+	// work (should not happen -- a covered model has at least one input the platform provides).
 	UnschedulableReasonNoInputs      UnschedulableReason = "NoInputs"
 	UnschedulableReasonNoCredentials UnschedulableReason = "NoCredentials"
 )
