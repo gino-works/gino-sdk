@@ -21,35 +21,35 @@ var (
 type LoadInput struct {
 	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
 	EnrichedAt time.Time
-	// Inputs is when each input that went into this document was collected, by input name. For
-	// an input of several tasks that is its oldest task. For a time-series row this is the
-	// measurement time; EnrichedAt is only when the document was assembled.
-	Inputs  map[string]time.Time
-	Payload json.RawMessage
+	// ModelInputs is when each model input that went into this document was collected, keyed by
+	// model input. For a model input of several tasks that is its oldest task. For a time-series
+	// row this is the measurement time; EnrichedAt is only when the document was assembled.
+	ModelInputs map[string]time.Time
+	Payload     json.RawMessage
 }
 
 // TypedLoadInput is a LoadInput with Payload decoded.
 type TypedLoadInput[T any] struct {
-	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
-	EnrichedAt time.Time
-	Inputs     map[string]time.Time
-	Payload    T
+	Endpoint    ginosdkapisv1.WorkerAssignmentEndpoint
+	EnrichedAt  time.Time
+	ModelInputs map[string]time.Time
+	Payload     T
 }
 
-// CollectedAt returns the collection time of the named input, or false if that input did not go
+// CollectedAt returns the collection time of modelInput, or false if that model input did not go
 // into this document.
-func (t TypedLoadInput[T]) CollectedAt(input string) (time.Time, bool) {
-	at, ok := t.Inputs[input]
+func (t TypedLoadInput[T]) CollectedAt(modelInput string) (time.Time, bool) {
+	at, ok := t.ModelInputs[modelInput]
 
 	return at, ok
 }
 
-// OldestCollectedAt returns the earliest collection time across the inputs that went into this
-// document -- the conservative "how stale is this" answer. Zero if there are none.
+// OldestCollectedAt returns the earliest collection time across the model inputs that went into
+// this document -- the conservative "how stale is this" answer. Zero if there are none.
 func (t TypedLoadInput[T]) OldestCollectedAt() time.Time {
 	var oldest time.Time
 
-	for _, at := range t.Inputs {
+	for _, at := range t.ModelInputs {
 		if oldest.IsZero() || at.Before(oldest) {
 			oldest = at
 		}
@@ -92,10 +92,10 @@ func DecodeLoadInputs[T any](
 		}
 
 		out[idx] = TypedLoadInput[T]{
-			Endpoint:   in[idx].Endpoint,
-			EnrichedAt: in[idx].EnrichedAt,
-			Inputs:     in[idx].Inputs,
-			Payload:    value,
+			Endpoint:    in[idx].Endpoint,
+			EnrichedAt:  in[idx].EnrichedAt,
+			ModelInputs: in[idx].ModelInputs,
+			Payload:     value,
 		}
 	}
 

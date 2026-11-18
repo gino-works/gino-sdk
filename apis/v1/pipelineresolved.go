@@ -34,11 +34,11 @@ type ResolvedModel struct {
 // AssignedInput is one input to collect from one endpoint, fully resolved: the platform's
 // implementation, the strictest requirement across every model that wants it, and who wants it.
 type AssignedInput struct {
-	Name      string           `json:"name"`
-	Kind      CollectorKind    `json:"kind"`
-	Tasks     []AssignedTask   `json:"tasks"`
-	Require   ModelRequirement `json:"require"`
-	Consumers []ResolvedModel  `json:"consumers"` // model names
+	ModelInput string           `json:"modelInput"`
+	Kind       CollectorKind    `json:"kind"`
+	Tasks      []AssignedTask   `json:"tasks"`
+	Require    ModelRequirement `json:"require"`
+	Consumers  []ResolvedModel  `json:"consumers"` // model versions wanting this input
 }
 
 // AssignedTask is a singular resolved task for an assignment.

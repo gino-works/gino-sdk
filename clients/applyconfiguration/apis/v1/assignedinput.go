@@ -12,11 +12,11 @@ import (
 // AssignedInput is one input to collect from one endpoint, fully resolved: the platform's
 // implementation, the strictest requirement across every model that wants it, and who wants it.
 type AssignedInputApplyConfiguration struct {
-	Name      *string                             `json:"name,omitempty"`
-	Kind      *apisv1.CollectorKind               `json:"kind,omitempty"`
-	Tasks     []AssignedTaskApplyConfiguration    `json:"tasks,omitempty"`
-	Require   *ModelRequirementApplyConfiguration `json:"require,omitempty"`
-	Consumers []ResolvedModelApplyConfiguration   `json:"consumers,omitempty"`
+	ModelInput *string                             `json:"modelInput,omitempty"`
+	Kind       *apisv1.CollectorKind               `json:"kind,omitempty"`
+	Tasks      []AssignedTaskApplyConfiguration    `json:"tasks,omitempty"`
+	Require    *ModelRequirementApplyConfiguration `json:"require,omitempty"`
+	Consumers  []ResolvedModelApplyConfiguration   `json:"consumers,omitempty"`
 }
 
 // AssignedInputApplyConfiguration constructs a declarative configuration of the AssignedInput type for use with
@@ -25,11 +25,11 @@ func AssignedInput() *AssignedInputApplyConfiguration {
 	return &AssignedInputApplyConfiguration{}
 }
 
-// WithName sets the Name field in the declarative configuration to the given value
+// WithModelInput sets the ModelInput field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *AssignedInputApplyConfiguration) WithName(value string) *AssignedInputApplyConfiguration {
-	b.Name = &value
+// If called multiple times, the ModelInput field is set to the value of the last call.
+func (b *AssignedInputApplyConfiguration) WithModelInput(value string) *AssignedInputApplyConfiguration {
+	b.ModelInput = &value
 	return b
 }
 

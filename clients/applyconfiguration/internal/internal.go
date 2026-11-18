@@ -85,7 +85,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: kind
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.CollectorKind
-    - name: name
+    - name: modelInput
       type:
         scalar: string
     - name: require

@@ -1068,7 +1068,7 @@ spec:
                                     - cli
                                     - http
                                     type: string
-                                  name:
+                                  modelInput:
                                     type: string
                                   require:
                                     description: ModelRequirement holds info about
@@ -1176,7 +1176,7 @@ spec:
                                 required:
                                 - consumers
                                 - kind
-                                - name
+                                - modelInput
                                 - require
                                 - tasks
                                 type: object

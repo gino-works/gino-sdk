@@ -40,8 +40,13 @@ func EnrichInputsFromProto(
 	var out EnrichInputs
 
 	for _, task := range req.GetTasks() {
-		if len(out) == 0 || out[len(out)-1].Name != task.GetModelInput() {
-			out = append(out, EnrichInput{Name: task.GetModelInput()})
+		if len(out) == 0 || out[len(out)-1].ModelInput != task.GetModelInput() {
+			out = append(
+				out,
+				EnrichInput{
+					ModelInput: task.GetModelInput(),
+				},
+			)
 		}
 
 		last := &out[len(out)-1]

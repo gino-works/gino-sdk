@@ -26,8 +26,8 @@ type EnrichTask struct {
 
 // EnrichInput is one input of the model version and all of its tasks, in the platform's order.
 type EnrichInput struct {
-	Name  string
-	Tasks []EnrichTask
+	ModelInput string
+	Tasks      []EnrichTask
 }
 
 // EnrichInputs is everything an enrich receives: every input of the model version, in the model
@@ -42,7 +42,7 @@ type EnrichInputs []EnrichInput
 // Input returns the named input.
 func (in EnrichInputs) Input(name string) (EnrichInput, bool) {
 	for idx := range in {
-		if in[idx].Name == name {
+		if in[idx].ModelInput == name {
 			return in[idx], true
 		}
 	}
@@ -71,11 +71,16 @@ type EnrichedTask[T any] struct {
 // disagree.
 func DecodeEnrichTask[T any](
 	in EnrichInputs,
-	input, task string,
+	modelInput,
+	task string,
 ) (EnrichedTask[T], error) {
-	ei, ok := in.Input(input)
+	ei, ok := in.Input(modelInput)
 	if !ok {
-		return EnrichedTask[T]{}, fmt.Errorf("%w: input %q", ErrMissingRequiredInput, input)
+		return EnrichedTask[T]{}, fmt.Errorf(
+			"%w: modelInput %q",
+			ErrMissingRequiredInput,
+			modelInput,
+		)
 	}
 
 	for idx := range ei.Tasks {
@@ -83,13 +88,13 @@ func DecodeEnrichTask[T any](
 			continue
 		}
 
-		return decodeEnrichTask[T](input, &ei.Tasks[idx])
+		return decodeEnrichTask[T](modelInput, &ei.Tasks[idx])
 	}
 
 	return EnrichedTask[T]{}, fmt.Errorf(
-		"%w: input %q has no task %q",
+		"%w: modelInput %q has no task %q",
 		ErrMissingRequiredInput,
-		input,
+		modelInput,
 		task,
 	)
 }
@@ -108,7 +113,7 @@ func DecodeEnrichTasks[T any](in EnrichInputs) ([]EnrichedTask[T], error) {
 
 	for idx := range in {
 		for taskIdx := range in[idx].Tasks {
-			task, err := decodeEnrichTask[T](in[idx].Name, &in[idx].Tasks[taskIdx])
+			task, err := decodeEnrichTask[T](in[idx].ModelInput, &in[idx].Tasks[taskIdx])
 			if err != nil {
 				return nil, err
 			}
