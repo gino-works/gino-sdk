@@ -43,7 +43,7 @@ const (
 
 // UnschedulableReason identifies why an endpoint selected by a pipeline produced no work. Listed
 // in the order they are checked; the first that applies is reported.
-// +kubebuilder:validation:Enum=Unresolved;Disabled;NoCluster;NoPlatformMatch;NoModelCoverage;NoInputs;NoCredentials
+// +kubebuilder:validation:Enum=Unresolved;Disabled;NoCluster;NoPlatformMatch;NoModelCoverage;NoInputs
 type UnschedulableReason string
 
 // Reasons for ConditionUnschedulable.
@@ -58,6 +58,5 @@ const (
 	UnschedulableReasonNoModelCoverage UnschedulableReason = "NoModelCoverage"
 	// UnschedulableReasonNoInputs: the platform covers a model version but its inputs resolve to no
 	// work (should not happen -- a covered model has at least one input the platform provides).
-	UnschedulableReasonNoInputs      UnschedulableReason = "NoInputs"
-	UnschedulableReasonNoCredentials UnschedulableReason = "NoCredentials"
+	UnschedulableReasonNoInputs UnschedulableReason = "NoInputs"
 )

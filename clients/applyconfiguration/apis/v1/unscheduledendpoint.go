@@ -12,12 +12,9 @@ import (
 // UnscheduledEndpoint holds reason why an endpoint (and which endpoint) cant be scheduled in this
 // Pipeline.
 type UnscheduledEndpointApplyConfiguration struct {
-	Name      *string `json:"name,omitempty"`
-	Namespace *string `json:"namespace,omitempty"`
-	// Kind is set when only one collector kind is affected (NoCredentials); empty when the whole
-	// endpoint is.
-	Kind   *apisv1.CollectorKind       `json:"kind,omitempty"`
-	Reason *apisv1.UnschedulableReason `json:"reason,omitempty"`
+	Name      *string                     `json:"name,omitempty"`
+	Namespace *string                     `json:"namespace,omitempty"`
+	Reason    *apisv1.UnschedulableReason `json:"reason,omitempty"`
 }
 
 // UnscheduledEndpointApplyConfiguration constructs a declarative configuration of the UnscheduledEndpoint type for use with
@@ -39,14 +36,6 @@ func (b *UnscheduledEndpointApplyConfiguration) WithName(value string) *Unschedu
 // If called multiple times, the Namespace field is set to the value of the last call.
 func (b *UnscheduledEndpointApplyConfiguration) WithNamespace(value string) *UnscheduledEndpointApplyConfiguration {
 	b.Namespace = &value
-	return b
-}
-
-// WithKind sets the Kind field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Kind field is set to the value of the last call.
-func (b *UnscheduledEndpointApplyConfiguration) WithKind(value apisv1.CollectorKind) *UnscheduledEndpointApplyConfiguration {
-	b.Kind = &value
 	return b
 }
 

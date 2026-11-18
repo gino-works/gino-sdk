@@ -1067,9 +1067,6 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.gino-works.gino-sdk.apis.v1.UnscheduledEndpoint
   map:
     fields:
-    - name: kind
-      type:
-        namedType: com.github.gino-works.gino-sdk.apis.v1.CollectorKind
     - name: name
       type:
         scalar: string

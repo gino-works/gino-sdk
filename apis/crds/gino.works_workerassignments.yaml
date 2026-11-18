@@ -62,7 +62,8 @@ spec:
                     credentials:
                       description: |-
                         Credentials names the Secret in the endpoint's (and so the worker's) namespace holding this
-                        endpoint's credentials for this kind.
+                        endpoint's credentials for this kind; empty when none were resolved, in which case the
+                        plugin's Open gets no credentials.
                       type: string
                     host:
                       description: Host is the host to connect to for this endpoint.

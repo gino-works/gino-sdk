@@ -85,7 +85,8 @@ type WorkerAssignmentEndpoint struct {
 	// PlatformName is the key into spec.inputSets -- the matched Platform's name.
 	PlatformName string `json:"platformName"`
 	// Credentials names the Secret in the endpoint's (and so the worker's) namespace holding this
-	// endpoint's credentials for this kind.
+	// endpoint's credentials for this kind; empty when none were resolved, in which case the
+	// plugin's Open gets no credentials.
 	Credentials string            `json:"credentials,omitempty"`
 	Tags        map[string]string `json:"tags,omitempty"`
 	// InterfaceTags are the resolved interface classification rules, evaluated by the enricher

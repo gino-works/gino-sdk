@@ -78,11 +78,7 @@ type AssignedEndpoint struct {
 // UnscheduledEndpoint holds reason why an endpoint (and which endpoint) cant be scheduled in this
 // Pipeline.
 type UnscheduledEndpoint struct {
-	Name      string `json:"name"`
-	Namespace string `json:"namespace"`
-	// Kind is set when only one collector kind is affected (NoCredentials); empty when the whole
-	// endpoint is.
-	// +optional
-	Kind   CollectorKind       `json:"kind,omitempty"`
-	Reason UnschedulableReason `json:"reason"`
+	Name      string              `json:"name"`
+	Namespace string              `json:"namespace"`
+	Reason    UnschedulableReason `json:"reason"`
 }
