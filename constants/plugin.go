@@ -4,7 +4,7 @@ import "os"
 
 // plugin related bits.
 const (
-	GinoPluginContractVersion             = "v1"
+	GinoPluginContractVersion             = "v2"
 	GinoPluginBinaryPath                  = "/work/plugin"
 	GinoPluginSockDir                     = "/tmp"
 	GinoPluginSocketPath                  = "/tmp/gino.sock"

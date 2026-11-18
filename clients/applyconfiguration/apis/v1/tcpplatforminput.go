@@ -7,7 +7,9 @@ package v1
 //
 // TCPPlatformInput holds input data for a tcp input.
 type TCPPlatformInputApplyConfiguration struct {
-	// Probes are all run, in order, against the endpoint.
+	// Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
+	// input: transformed on its own, cached by the enricher under its name, and the input is
+	// complete once every part is present.
 	Probes []TCPProbeApplyConfiguration `json:"probes,omitempty"`
 }
 

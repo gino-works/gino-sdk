@@ -38,8 +38,7 @@ type AssignedInput struct {
 	Kind      CollectorKind    `json:"kind"`
 	Impl      PlatformInput    `json:"impl"`
 	Require   ModelRequirement `json:"require"`
-	Optional  bool             `json:"optional,omitempty"` // optional for *every* consumer
-	Consumers []ResolvedModel  `json:"consumers"`          // model names
+	Consumers []ResolvedModel  `json:"consumers"` // model names
 }
 
 // AssignedEndpoint is one endpoint's worth of work for one collector kind.

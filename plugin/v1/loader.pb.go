@@ -23,10 +23,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// LoadInputSource is provenance: one part that went into the enriched model.
 type LoadInputSource struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// the input (ModelInput.name).
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// the part (task) of the input.
+	Task          string                 `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
+	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -64,6 +68,13 @@ func (*LoadInputSource) Descriptor() ([]byte, []int) {
 func (x *LoadInputSource) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadInputSource) GetTask() string {
+	if x != nil {
+		return x.Task
 	}
 	return ""
 }
@@ -243,10 +254,11 @@ var File_plugin_v1_loader_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_loader_proto_rawDesc = "" +
 	"\n" +
-	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"d\n" +
+	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"x\n" +
 	"\x0fLoadInputSource\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12=\n" +
-	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\xb2\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x04task\x18\x02 \x01(\tR\x04task\x12=\n" +
+	"\fcollected_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\xb2\x01\n" +
 	"\tLoadInput\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\fR\apayload\x12;\n" +

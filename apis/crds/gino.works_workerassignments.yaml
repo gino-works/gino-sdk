@@ -174,8 +174,9 @@ spec:
                             properties:
                               commands:
                                 description: |-
-                                  Commands are all run, in order, on the endpoint's session as one unit. Their outputs are
-                                  handed to the transform together, keyed by name.
+                                  Commands are all run, in order, on the endpoint's session. Each command is one part (task)
+                                  of the input: transformed on its own, cached by the enricher under its name, and the input
+                                  is complete once every part is present.
                                 items:
                                   description: CliCommand is a single command/input
                                     to a cli device.
@@ -185,8 +186,12 @@ spec:
                                         to the device.
                                       type: string
                                     name:
-                                      description: Name -- name that transformers
-                                        read to map to a transform.
+                                      description: |-
+                                        Name is the part (task) name: unique within the input, what transforms switch on and what
+                                        the enricher caches the part under.
+                                      maxLength: 63
+                                      minLength: 1
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                                       type: string
                                   required:
                                   - input
@@ -194,7 +199,9 @@ spec:
                                   type: object
                                 minItems: 1
                                 type: array
-                                x-kubernetes-list-type: atomic
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
                             required:
                             - commands
                             type: object
@@ -203,8 +210,9 @@ spec:
                             properties:
                               requests:
                                 description: |-
-                                  Requests are all run, in order, against the endpoint's session as one unit; each produces
-                                  one (or, for fan-out APIs, many) payloads handed to the transform keyed by name.
+                                  Requests are all run, in order, against the endpoint's session. Each request is one part
+                                  (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
+                                  transformed on their own; the input is complete once every part is present.
                                 items:
                                   description: HTTPRequest is one named call the plugin
                                     knows how to make.
@@ -221,8 +229,12 @@ spec:
                                         makes the request.
                                       type: string
                                     name:
-                                      description: Name -- name that transformers
-                                        read to map to a transform.
+                                      description: |-
+                                        Name is the part (task) name: unique within the input, what transforms switch on and what
+                                        the enricher caches the part under.
+                                      maxLength: 63
+                                      minLength: 1
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                                       type: string
                                   required:
                                   - fn
@@ -230,7 +242,9 @@ spec:
                                   type: object
                                 minItems: 1
                                 type: array
-                                x-kubernetes-list-type: atomic
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
                             required:
                             - requests
                             type: object
@@ -238,21 +252,34 @@ spec:
                             description: TCP is the tcp flavor of input.
                             properties:
                               probes:
-                                description: Probes are all run, in order, against
-                                  the endpoint.
+                                description: |-
+                                  Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
+                                  input: transformed on its own, cached by the enricher under its name, and the input is
+                                  complete once every part is present.
                                 items:
                                   description: TCPProbe holds data about a tcp probe.
                                   properties:
+                                    name:
+                                      description: |-
+                                        Name is the part (task) name: unique within the input, what transforms switch on and what
+                                        the enricher caches the part under.
+                                      maxLength: 63
+                                      minLength: 1
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+                                      type: string
                                     port:
                                       maximum: 65535
                                       minimum: 1
                                       type: integer
                                   required:
+                                  - name
                                   - port
                                   type: object
                                 minItems: 1
                                 type: array
-                                x-kubernetes-list-type: atomic
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
                             required:
                             - probes
                             type: object
@@ -271,8 +298,6 @@ spec:
                         type: string
                       name:
                         type: string
-                      optional:
-                        type: boolean
                       require:
                         description: ModelRequirement holds info about when/at what
                           time the model wants this input.

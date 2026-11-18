@@ -12,10 +12,6 @@ type ModelInputApplyConfiguration struct {
 	Name *string `json:"name,omitempty"`
 	// Require defines when or how fresh the model requires this input to be.
 	Require *ModelRequirementApplyConfiguration `json:"require,omitempty"`
-	// Optional marks an input the model can be produced without. A platform that does not provide
-	// an optional input is still supported for this model; enrichment emits without it, and its
-	// staleness is reported but does not count as a violation.
-	Optional *bool `json:"optional,omitempty"`
 }
 
 // ModelInputApplyConfiguration constructs a declarative configuration of the ModelInput type for use with
@@ -37,13 +33,5 @@ func (b *ModelInputApplyConfiguration) WithName(value string) *ModelInputApplyCo
 // If called multiple times, the Require field is set to the value of the last call.
 func (b *ModelInputApplyConfiguration) WithRequire(value *ModelRequirementApplyConfiguration) *ModelInputApplyConfiguration {
 	b.Require = value
-	return b
-}
-
-// WithOptional sets the Optional field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Optional field is set to the value of the last call.
-func (b *ModelInputApplyConfiguration) WithOptional(value bool) *ModelInputApplyConfiguration {
-	b.Optional = &value
 	return b
 }

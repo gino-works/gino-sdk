@@ -91,9 +91,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: optional
-      type:
-        scalar: boolean
     - name: require
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.ModelRequirement
@@ -114,7 +111,9 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             namedType: com.github.gino-works.gino-sdk.apis.v1.CliCommand
-          elementRelationship: atomic
+          elementRelationship: associative
+          keys:
+          - name
 - name: com.github.gino-works.gino-sdk.apis.v1.CliWorkerSpec
   map:
     fields:
@@ -441,7 +440,9 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             namedType: com.github.gino-works.gino-sdk.apis.v1.HTTPRequest
-          elementRelationship: atomic
+          elementRelationship: associative
+          keys:
+          - name
 - name: com.github.gino-works.gino-sdk.apis.v1.HTTPRequest
   map:
     fields:
@@ -681,9 +682,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: optional
-      type:
-        scalar: boolean
     - name: require
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.ModelRequirement
@@ -967,10 +965,15 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             namedType: com.github.gino-works.gino-sdk.apis.v1.TCPProbe
-          elementRelationship: atomic
+          elementRelationship: associative
+          keys:
+          - name
 - name: com.github.gino-works.gino-sdk.apis.v1.TCPProbe
   map:
     fields:
+    - name: name
+      type:
+        scalar: string
     - name: port
       type:
         scalar: numeric

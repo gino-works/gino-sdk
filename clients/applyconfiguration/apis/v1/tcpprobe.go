@@ -7,13 +7,24 @@ package v1
 //
 // TCPProbe holds data about a tcp probe.
 type TCPProbeApplyConfiguration struct {
-	Port *int `json:"port,omitempty"`
+	// Name is the part (task) name: unique within the input, what transforms switch on and what
+	// the enricher caches the part under.
+	Name *string `json:"name,omitempty"`
+	Port *int    `json:"port,omitempty"`
 }
 
 // TCPProbeApplyConfiguration constructs a declarative configuration of the TCPProbe type for use with
 // apply.
 func TCPProbe() *TCPProbeApplyConfiguration {
 	return &TCPProbeApplyConfiguration{}
+}
+
+// WithName sets the Name field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Name field is set to the value of the last call.
+func (b *TCPProbeApplyConfiguration) WithName(value string) *TCPProbeApplyConfiguration {
+	b.Name = &value
+	return b
 }
 
 // WithPort sets the Port field in the declarative configuration to the given value

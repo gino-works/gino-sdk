@@ -7,7 +7,8 @@ package v1
 //
 // CliCommand is a single command/input to a cli device.
 type CliCommandApplyConfiguration struct {
-	// Name -- name that transformers read to map to a transform.
+	// Name is the part (task) name: unique within the input, what transforms switch on and what
+	// the enricher caches the part under.
 	Name *string `json:"name,omitempty"`
 	// Input -- the actual input sent to the device.
 	Input *string `json:"input,omitempty"`

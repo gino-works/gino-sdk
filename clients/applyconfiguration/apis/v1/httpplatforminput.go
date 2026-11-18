@@ -9,8 +9,9 @@ package v1
 // paging, token refresh, rate limits...), so an input names implementation functions the
 // plugin provides, and the plugin does whatever that API needs.
 type HTTPPlatformInputApplyConfiguration struct {
-	// Requests are all run, in order, against the endpoint's session as one unit; each produces
-	// one (or, for fan-out APIs, many) payloads handed to the transform keyed by name.
+	// Requests are all run, in order, against the endpoint's session. Each request is one part
+	// (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
+	// transformed on their own; the input is complete once every part is present.
 	Requests []HTTPRequestApplyConfiguration `json:"requests,omitempty"`
 }
 

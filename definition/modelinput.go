@@ -34,11 +34,14 @@ func CliPlatformInput(
 
 // HTTPPlatformInput is a convenience func to return an http platform input.
 func HTTPPlatformInput(
+	requests []ginosdkapisv1.HTTPRequest,
 	transform Transform,
 ) PlatformInput {
 	return PlatformInput{
 		Impl: ginosdkapisv1.PlatformInput{
-			HTTP: &ginosdkapisv1.HTTPPlatformInput{},
+			HTTP: &ginosdkapisv1.HTTPPlatformInput{
+				Requests: requests,
+			},
 		},
 		Transform: transform,
 	}

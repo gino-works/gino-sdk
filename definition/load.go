@@ -22,8 +22,8 @@ type LoadInput struct {
 	Endpoint   ginosdkapisv1.WorkerAssignmentEndpoint
 	EnrichedAt time.Time
 	// Inputs is when each input that went into this document was collected, by input name. For
-	// a time-series row this is the measurement time; EnrichedAt is only when the document was
-	// assembled.
+	// a multi-part input that is its oldest part. For a time-series row this is the measurement
+	// time; EnrichedAt is only when the document was assembled.
 	Inputs  map[string]time.Time
 	Payload json.RawMessage
 }

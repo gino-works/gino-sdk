@@ -27,7 +27,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// TransformerService turns a raw payload into structured data. Stateless; one call per message.
+// TransformerService turns a raw payload into structured data. Stateless; one call per collected
+// payload -- i.e. per part (task) of an input, never a whole multi-part input at once.
 type TransformerServiceClient interface {
 	Transform(ctx context.Context, in *TransformRequest, opts ...grpc.CallOption) (*TransformResponse, error)
 }
@@ -54,7 +55,8 @@ func (c *transformerServiceClient) Transform(ctx context.Context, in *TransformR
 // All implementations must embed UnimplementedTransformerServiceServer
 // for forward compatibility.
 //
-// TransformerService turns a raw payload into structured data. Stateless; one call per message.
+// TransformerService turns a raw payload into structured data. Stateless; one call per collected
+// payload -- i.e. per part (task) of an input, never a whole multi-part input at once.
 type TransformerServiceServer interface {
 	Transform(context.Context, *TransformRequest) (*TransformResponse, error)
 	mustEmbedUnimplementedTransformerServiceServer()

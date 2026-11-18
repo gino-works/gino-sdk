@@ -10,9 +10,13 @@ service LoaderService {
   rpc Load(LoadRequest) returns (LoadResponse);
 }
 
+// LoadInputSource is provenance: one part that went into the enriched model.
 message LoadInputSource {
+  // the input (ModelInput.name).
   string name = 1;
-  google.protobuf.Timestamp collected_at = 2;
+  // the part (task) of the input.
+  string task = 2;
+  google.protobuf.Timestamp collected_at = 3;
 }
 
 message LoadInput {

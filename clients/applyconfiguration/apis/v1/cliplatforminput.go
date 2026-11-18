@@ -7,8 +7,9 @@ package v1
 //
 // CliPlatformInput holds input data for a cli input.
 type CliPlatformInputApplyConfiguration struct {
-	// Commands are all run, in order, on the endpoint's session as one unit. Their outputs are
-	// handed to the transform together, keyed by name.
+	// Commands are all run, in order, on the endpoint's session. Each command is one part (task)
+	// of the input: transformed on its own, cached by the enricher under its name, and the input
+	// is complete once every part is present.
 	Commands []CliCommandApplyConfiguration `json:"commands,omitempty"`
 }
 

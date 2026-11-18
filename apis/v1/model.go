@@ -55,11 +55,6 @@ type ModelInput struct {
 	Name string `json:"name"`
 	// Require defines when or how fresh the model requires this input to be.
 	Require ModelRequirement `json:"require"`
-	// Optional marks an input the model can be produced without. A platform that does not provide
-	// an optional input is still supported for this model; enrichment emits without it, and its
-	// staleness is reported but does not count as a violation.
-	// +optional
-	Optional bool `json:"optional,omitempty"`
 }
 
 // ModelRequirement holds info about when/at what time the model wants this input.

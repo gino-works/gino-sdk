@@ -19,5 +19,4 @@ type ModelInput struct {
 	Name      string
 	Freshness time.Duration
 	At        string
-	Optional  bool
 }

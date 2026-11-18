@@ -23,11 +23,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// EnrichInput is one transformed part of one input.
 type EnrichInput struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Payload       []byte                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
-	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// the input (ModelInput.name) this part belongs to.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// the part (task) of the input: CliCommand/HTTPRequest/TCPProbe name.
+	Task          string                 `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
+	Payload       []byte                 `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
+	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -69,6 +73,13 @@ func (x *EnrichInput) GetName() string {
 	return ""
 }
 
+func (x *EnrichInput) GetTask() string {
+	if x != nil {
+		return x.Task
+	}
+	return ""
+}
+
 func (x *EnrichInput) GetPayload() []byte {
 	if x != nil {
 		return x.Payload
@@ -84,11 +95,14 @@ func (x *EnrichInput) GetCollectedAt() *timestamppb.Timestamp {
 }
 
 type EnrichRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Endpoint      []byte                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
-	Model         string                 `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`
-	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
-	Inputs        []*EnrichInput         `protobuf:"bytes,4,rep,name=inputs,proto3" json:"inputs,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Endpoint []byte                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	Model    string                 `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`
+	Version  string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
+	// every part of every input of the model version, ordered: inputs in the model version's input
+	// order, and within an input its parts in the platform's order. parts of one input are
+	// contiguous.
+	Inputs        []*EnrichInput `protobuf:"bytes,4,rep,name=inputs,proto3" json:"inputs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -199,11 +213,12 @@ var File_plugin_v1_enricher_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_enricher_proto_rawDesc = "" +
 	"\n" +
-	"\x18plugin/v1/enricher.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"z\n" +
+	"\x18plugin/v1/enricher.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x01\n" +
 	"\vEnrichInput\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
-	"\apayload\x18\x02 \x01(\fR\apayload\x12=\n" +
-	"\fcollected_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\x8b\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x04task\x18\x02 \x01(\tR\x04task\x12\x18\n" +
+	"\apayload\x18\x03 \x01(\fR\apayload\x12=\n" +
+	"\fcollected_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\x8b\x01\n" +
 	"\rEnrichRequest\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12\x18\n" +

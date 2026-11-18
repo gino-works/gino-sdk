@@ -12,13 +12,11 @@ import (
 // AssignedInput is one input to collect from one endpoint, fully resolved: the platform's
 // implementation, the strictest requirement across every model that wants it, and who wants it.
 type AssignedInputApplyConfiguration struct {
-	Name     *string                             `json:"name,omitempty"`
-	Kind     *apisv1.CollectorKind               `json:"kind,omitempty"`
-	Impl     *PlatformInputApplyConfiguration    `json:"impl,omitempty"`
-	Require  *ModelRequirementApplyConfiguration `json:"require,omitempty"`
-	Optional *bool                               `json:"optional,omitempty"`
-	// optional for *every* consumer
-	Consumers []ResolvedModelApplyConfiguration `json:"consumers,omitempty"`
+	Name      *string                             `json:"name,omitempty"`
+	Kind      *apisv1.CollectorKind               `json:"kind,omitempty"`
+	Impl      *PlatformInputApplyConfiguration    `json:"impl,omitempty"`
+	Require   *ModelRequirementApplyConfiguration `json:"require,omitempty"`
+	Consumers []ResolvedModelApplyConfiguration   `json:"consumers,omitempty"`
 }
 
 // AssignedInputApplyConfiguration constructs a declarative configuration of the AssignedInput type for use with
@@ -56,14 +54,6 @@ func (b *AssignedInputApplyConfiguration) WithImpl(value *PlatformInputApplyConf
 // If called multiple times, the Require field is set to the value of the last call.
 func (b *AssignedInputApplyConfiguration) WithRequire(value *ModelRequirementApplyConfiguration) *AssignedInputApplyConfiguration {
 	b.Require = value
-	return b
-}
-
-// WithOptional sets the Optional field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Optional field is set to the value of the last call.
-func (b *AssignedInputApplyConfiguration) WithOptional(value bool) *AssignedInputApplyConfiguration {
-	b.Optional = &value
 	return b
 }
 

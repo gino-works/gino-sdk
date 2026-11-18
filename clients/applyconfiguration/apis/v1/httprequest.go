@@ -7,7 +7,8 @@ package v1
 //
 // HTTPRequest is one named call the plugin knows how to make.
 type HTTPRequestApplyConfiguration struct {
-	// Name -- name that transformers read to map to a transform.
+	// Name is the part (task) name: unique within the input, what transforms switch on and what
+	// the enricher caches the part under.
 	Name *string `json:"name,omitempty"`
 	// Fn is the plugin function that makes the request.
 	Fn *string `json:"fn,omitempty"`

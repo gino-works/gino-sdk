@@ -65,14 +65,23 @@ type PlatformInput struct {
 
 // TCPPlatformInput holds input data for a tcp input.
 type TCPPlatformInput struct {
-	// Probes are all run, in order, against the endpoint.
-	// +listType=atomic
+	// Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
+	// input: transformed on its own, cached by the enricher under its name, and the input is
+	// complete once every part is present.
+	// +listType=map
+	// +listMapKey=name
 	// +kubebuilder:validation:MinItems=1
 	Probes []TCPProbe `json:"probes"`
 }
 
 // TCPProbe holds data about a tcp probe.
 type TCPProbe struct {
+	// Name is the part (task) name: unique within the input, what transforms switch on and what
+	// the enricher caches the part under.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`
+	Name string `json:"name"`
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=65535
 	Port int `json:"port"`
@@ -80,16 +89,22 @@ type TCPProbe struct {
 
 // CliPlatformInput holds input data for a cli input.
 type CliPlatformInput struct {
-	// Commands are all run, in order, on the endpoint's session as one unit. Their outputs are
-	// handed to the transform together, keyed by name.
-	// +listType=atomic
+	// Commands are all run, in order, on the endpoint's session. Each command is one part (task)
+	// of the input: transformed on its own, cached by the enricher under its name, and the input
+	// is complete once every part is present.
+	// +listType=map
+	// +listMapKey=name
 	// +kubebuilder:validation:MinItems=1
 	Commands []CliCommand `json:"commands"`
 }
 
 // CliCommand is a single command/input to a cli device.
 type CliCommand struct {
-	// Name -- name that transformers read to map to a transform.
+	// Name is the part (task) name: unique within the input, what transforms switch on and what
+	// the enricher caches the part under.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`
 	Name string `json:"name"`
 	// Input -- the actual input sent to the device.
 	Input string `json:"input"`
@@ -99,16 +114,22 @@ type CliCommand struct {
 // paging, token refresh, rate limits...), so an input names implementation functions the
 // plugin provides, and the plugin does whatever that API needs.
 type HTTPPlatformInput struct {
-	// Requests are all run, in order, against the endpoint's session as one unit; each produces
-	// one (or, for fan-out APIs, many) payloads handed to the transform keyed by name.
-	// +listType=atomic
+	// Requests are all run, in order, against the endpoint's session. Each request is one part
+	// (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
+	// transformed on their own; the input is complete once every part is present.
+	// +listType=map
+	// +listMapKey=name
 	// +kubebuilder:validation:MinItems=1
 	Requests []HTTPRequest `json:"requests"`
 }
 
 // HTTPRequest is one named call the plugin knows how to make.
 type HTTPRequest struct {
-	// Name -- name that transformers read to map to a transform.
+	// Name is the part (task) name: unique within the input, what transforms switch on and what
+	// the enricher caches the part under.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`
 	Name string `json:"name"`
 	// Fn is the plugin function that makes the request.
 	Fn string `json:"fn"`

@@ -210,8 +210,7 @@ func (r *Registry) Manifests() Manifests {
 
 			for _, in := range m.Inputs {
 				mi := ginosdkapisv1.ModelInput{
-					Name:     in.Name,
-					Optional: in.Optional,
+					Name: in.Name,
 				}
 
 				if in.Freshness > 0 {

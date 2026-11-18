@@ -65,12 +65,6 @@ spec:
                             description: Name is the name of the input this model
                               wants.
                             type: string
-                          optional:
-                            description: |-
-                              Optional marks an input the model can be produced without. A platform that does not provide
-                              an optional input is still supported for this model; enrichment emits without it, and its
-                              staleness is reported but does not count as a violation.
-                            type: boolean
                           require:
                             description: Require defines when or how fresh the model
                               requires this input to be.

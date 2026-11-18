@@ -10,16 +10,23 @@ service EnricherService {
   rpc Enrich(EnrichRequest) returns (EnrichResponse);
 }
 
+// EnrichInput is one transformed part of one input.
 message EnrichInput {
+  // the input (ModelInput.name) this part belongs to.
   string name = 1;
-  bytes payload = 2;
-  google.protobuf.Timestamp collected_at = 3;
+  // the part (task) of the input: CliCommand/HTTPRequest/TCPProbe name.
+  string task = 2;
+  bytes payload = 3;
+  google.protobuf.Timestamp collected_at = 4;
 }
 
 message EnrichRequest {
   bytes endpoint = 1;
   string model = 2;
   string version = 3;
+  // every part of every input of the model version, ordered: inputs in the model version's input
+  // order, and within an input its parts in the platform's order. parts of one input are
+  // contiguous.
   repeated EnrichInput inputs = 4;
 }
 
