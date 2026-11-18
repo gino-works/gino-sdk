@@ -33,7 +33,9 @@ type CollectorServiceClient interface {
 	// endpoint and again after a Collect returns UNAVAILABLE. Credentials are passed whole; the
 	// plugin touches no mount.
 	Open(ctx context.Context, in *OpenRequest, opts ...grpc.CallOption) (*OpenResponse, error)
-	// Collect runs one input on an open session and returns every payload it produced.
+	// Collect runs one task of an input on an open session and returns every payload it produced:
+	// one, or for fan-out collectors one per endpoint. gino calls it once per task, in the
+	// platform's order, so a failure on one task loses only that task's payload.
 	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*CollectResponse, error)
 	// Close tears a session down: the endpoint left the assignment, or gino is shutting down.
 	// Best effort; gino does not wait long.
@@ -86,7 +88,9 @@ type CollectorServiceServer interface {
 	// endpoint and again after a Collect returns UNAVAILABLE. Credentials are passed whole; the
 	// plugin touches no mount.
 	Open(context.Context, *OpenRequest) (*OpenResponse, error)
-	// Collect runs one input on an open session and returns every payload it produced.
+	// Collect runs one task of an input on an open session and returns every payload it produced:
+	// one, or for fan-out collectors one per endpoint. gino calls it once per task, in the
+	// platform's order, so a failure on one task loses only that task's payload.
 	Collect(context.Context, *CollectRequest) (*CollectResponse, error)
 	// Close tears a session down: the endpoint left the assignment, or gino is shutting down.
 	// Best effort; gino does not wait long.

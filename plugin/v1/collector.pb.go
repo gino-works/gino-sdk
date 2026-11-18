@@ -23,12 +23,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Input is one thing to collect, as the Platform defined it for this kind.
+// Input is one part (task) of one input to collect, as the Platform defined it for this kind.
 type Input struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Platform.spec.inputs[name].<kind> as JSON.
-	Impl          []byte `protobuf:"bytes,2,opt,name=impl,proto3" json:"impl,omitempty"`
+	// the logical, model facing input (ModelInput.name) the task belongs to.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Platform.spec.inputs[name].<kind> as JSON, narrowed to the one task being collected: a
+	// CliPlatformInput with exactly one command, an HTTPPlatformInput with exactly one request, a
+	// TCPPlatformInput with exactly one probe.
+	Impl []byte `protobuf:"bytes,2,opt,name=impl,proto3" json:"impl,omitempty"`
+	// the task: the CliCommand/HTTPRequest/TCPProbe name impl holds. Informational -- impl already
+	// is that one part -- for logging and for plugins that key anything per task.
+	Task          string `protobuf:"bytes,3,opt,name=task,proto3" json:"task,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -75,6 +81,13 @@ func (x *Input) GetImpl() []byte {
 		return x.Impl
 	}
 	return nil
+}
+
+func (x *Input) GetTask() string {
+	if x != nil {
+		return x.Task
+	}
+	return ""
 }
 
 type OpenResponse struct {
@@ -221,25 +234,23 @@ func (x *CollectRequest) GetInput() *Input {
 	return nil
 }
 
-// Collected is one payload out of an input; an input may produce several (one per command,
-// request or probe).
+// Collected is one payload out of a task. Its associated upstream by endpoint/input/task -- w/ the
+// exception for fan-out things (collector collects one "thing" then dispatches it for N endpoints
+// -- best example is collecting from for ex vmanage, fanning out for each individual vedge).
 type Collected struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// the part (task) of the input that produced this payload: the CliCommand/HTTPRequest/TCPProbe
-	// name. required -- gino publishes, and the enricher caches, each part under it. it is the only
-	// identity the plugin states; gino already knows the endpoint (overridable below) and the input.
-	Task    string `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`
-	Payload []byte `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Payload []byte                 `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
 	// when the data is from, if the plugin knows better than gino (a device timestamp). Unset
 	// means the time gino handed out the batch.
-	CollectedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
-	// set when this part failed on a session that is otherwise fine (the device rejected the
-	// command, for example). gino does not publish it and logs error; the other parts still publish.
-	Error string `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
+	CollectedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	// set when the task failed on a session that is otherwise fine (the device rejected the
+	// command, for example). gino does not publish it and logs error; the input's other tasks
+	// still publish and the input simply stays incomplete until the next cycle.
+	Error string `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
 	// for fan-out collectors (one session, payloads for many endpoints) the implementation can
 	// fill this in (its just the WorkerAssignmentEndpoint json) -- if its set the gino side
 	// publishes with this endpoint data in the outgoing message.
-	Endpoint      []byte `protobuf:"bytes,5,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	Endpoint      []byte `protobuf:"bytes,4,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -274,13 +285,6 @@ func (*Collected) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_collector_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Collected) GetTask() string {
-	if x != nil {
-		return x.Task
-	}
-	return ""
-}
-
 func (x *Collected) GetPayload() []byte {
 	if x != nil {
 		return x.Payload
@@ -310,8 +314,10 @@ func (x *Collected) GetEndpoint() []byte {
 }
 
 type CollectResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Collected     []*Collected           `protobuf:"bytes,1,rep,name=collected,proto3" json:"collected,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// payloads for the requested task; normally exactly one, more only for fan-out collectors (each
+	// with endpoint set), none if the task produced nothing.
+	Collected     []*Collected `protobuf:"bytes,1,rep,name=collected,proto3" json:"collected,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -437,10 +443,11 @@ var File_plugin_v1_collector_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x19plugin/v1/collector.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"/\n" +
+	"\x19plugin/v1/collector.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"C\n" +
 	"\x05Input\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04impl\x18\x02 \x01(\fR\x04impl\"\x0e\n" +
+	"\x04impl\x18\x02 \x01(\fR\x04impl\x12\x12\n" +
+	"\x04task\x18\x03 \x01(\tR\x04task\"\x0e\n" +
 	"\fOpenResponse\"\xb4\x01\n" +
 	"\vOpenRequest\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12I\n" +
@@ -450,13 +457,12 @@ const file_plugin_v1_collector_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"T\n" +
 	"\x0eCollectRequest\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12&\n" +
-	"\x05input\x18\x02 \x01(\v2\x10.plugin.v1.InputR\x05input\"\xaa\x01\n" +
-	"\tCollected\x12\x12\n" +
-	"\x04task\x18\x01 \x01(\tR\x04task\x12\x18\n" +
-	"\apayload\x18\x02 \x01(\fR\apayload\x12=\n" +
-	"\fcollected_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12\x14\n" +
-	"\x05error\x18\x04 \x01(\tR\x05error\x12\x1a\n" +
-	"\bendpoint\x18\x05 \x01(\fR\bendpoint\"E\n" +
+	"\x05input\x18\x02 \x01(\v2\x10.plugin.v1.InputR\x05input\"\x96\x01\n" +
+	"\tCollected\x12\x18\n" +
+	"\apayload\x18\x01 \x01(\fR\apayload\x12=\n" +
+	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12\x14\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\x12\x1a\n" +
+	"\bendpoint\x18\x04 \x01(\fR\bendpoint\"E\n" +
 	"\x0fCollectResponse\x122\n" +
 	"\tcollected\x18\x01 \x03(\v2\x14.plugin.v1.CollectedR\tcollected\"*\n" +
 	"\fCloseRequest\x12\x1a\n" +

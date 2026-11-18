@@ -188,3 +188,43 @@ func (p *PlatformInput) Tasks() []string {
 
 	return names
 }
+
+// Part returns a copy of the input narrowed to the named task: the same kind with exactly that
+// one command/request/probe, or false if the input has no such task. This is what a collector
+// plugin receives per Collect call.
+func (p *PlatformInput) Part(task string) (PlatformInput, bool) {
+	switch {
+	case p.Cli != nil:
+		for idx := range p.Cli.Commands {
+			if p.Cli.Commands[idx].Name == task {
+				return PlatformInput{
+					Cli: &CliPlatformInput{
+						Commands: []CliCommand{p.Cli.Commands[idx]},
+					},
+				}, true
+			}
+		}
+	case p.HTTP != nil:
+		for idx := range p.HTTP.Requests {
+			if p.HTTP.Requests[idx].Name == task {
+				return PlatformInput{
+					HTTP: &HTTPPlatformInput{
+						Requests: []HTTPRequest{p.HTTP.Requests[idx]},
+					},
+				}, true
+			}
+		}
+	case p.TCP != nil:
+		for idx := range p.TCP.Probes {
+			if p.TCP.Probes[idx].Name == task {
+				return PlatformInput{
+					TCP: &TCPPlatformInput{
+						Probes: []TCPProbe{p.TCP.Probes[idx]},
+					},
+				}, true
+			}
+		}
+	}
+
+	return PlatformInput{}, false
+}

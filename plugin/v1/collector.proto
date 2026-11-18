@@ -6,11 +6,17 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
 
-// Input is one thing to collect, as the Platform defined it for this kind.
+// Input is one part (task) of one input to collect, as the Platform defined it for this kind.
 message Input {
+  // the logical, model facing input (ModelInput.name) the task belongs to.
   string name = 1;
-  // Platform.spec.inputs[name].<kind> as JSON.
+  // Platform.spec.inputs[name].<kind> as JSON, narrowed to the one task being collected: a
+  // CliPlatformInput with exactly one command, an HTTPPlatformInput with exactly one request, a
+  // TCPPlatformInput with exactly one probe.
   bytes impl = 2;
+  // the task: the CliCommand/HTTPRequest/TCPProbe name impl holds. Informational -- impl already
+  // is that one part -- for logging and for plugins that key anything per task.
+  string task = 3;
 }
 
 service CollectorService {
@@ -18,7 +24,9 @@ service CollectorService {
   // endpoint and again after a Collect returns UNAVAILABLE. Credentials are passed whole; the
   // plugin touches no mount.
   rpc Open(OpenRequest) returns (OpenResponse);
-  // Collect runs one input on an open session and returns every payload it produced.
+  // Collect runs one task of an input on an open session and returns every payload it produced:
+  // one, or for fan-out collectors one per endpoint. gino calls it once per task, in the
+  // platform's order, so a failure on one task loses only that task's payload.
   rpc Collect(CollectRequest) returns (CollectResponse);
   // Close tears a session down: the endpoint left the assignment, or gino is shutting down.
   // Best effort; gino does not wait long.
@@ -41,27 +49,27 @@ message CollectRequest {
   Input input = 2;
 }
 
-// Collected is one payload out of an input; an input may produce several (one per command,
-// request or probe).
+// Collected is one payload out of a task. Its associated upstream by endpoint/input/task -- w/ the
+// exception for fan-out things (collector collects one "thing" then dispatches it for N endpoints
+// -- best example is collecting from for ex vmanage, fanning out for each individual vedge).
 message Collected {
-  // the part (task) of the input that produced this payload: the CliCommand/HTTPRequest/TCPProbe
-  // name. required -- gino publishes, and the enricher caches, each part under it. it is the only
-  // identity the plugin states; gino already knows the endpoint (overridable below) and the input.
-  string task = 1;
-  bytes payload = 2;
+  bytes payload = 1;
   // when the data is from, if the plugin knows better than gino (a device timestamp). Unset
   // means the time gino handed out the batch.
-  google.protobuf.Timestamp collected_at = 3;
-  // set when this part failed on a session that is otherwise fine (the device rejected the
-  // command, for example). gino does not publish it and logs error; the other parts still publish.
-  string error = 4;
+  google.protobuf.Timestamp collected_at = 2;
+  // set when the task failed on a session that is otherwise fine (the device rejected the
+  // command, for example). gino does not publish it and logs error; the input's other tasks
+  // still publish and the input simply stays incomplete until the next cycle.
+  string error = 3;
   // for fan-out collectors (one session, payloads for many endpoints) the implementation can
   // fill this in (its just the WorkerAssignmentEndpoint json) -- if its set the gino side
   // publishes with this endpoint data in the outgoing message.
-  bytes endpoint = 5;
+  bytes endpoint = 4;
 }
 
 message CollectResponse {
+  // payloads for the requested task; normally exactly one, more only for fan-out collectors (each
+  // with endpoint set), none if the task produced nothing.
   repeated Collected collected = 1;
 }
 
