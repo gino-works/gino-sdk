@@ -1328,6 +1328,7 @@ spec:
                           - Disabled
                           - NoCluster
                           - NoPlatformMatch
+                          - NoModelCoverage
                           - NoInputs
                           - NoCredentials
                           type: string
