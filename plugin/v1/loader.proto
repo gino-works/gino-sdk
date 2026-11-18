@@ -13,7 +13,7 @@ service LoaderService {
 // LoadSource is provenance: one task whose payload went into the enriched model.
 message LoadSource {
   // the input (ModelInput.name) the task belongs to.
-  string input = 1;
+  string model_input = 1;
   // the task's name (CliCommand/HTTPRequest/TCPProbe.name).
   string task = 2;
   google.protobuf.Timestamp collected_at = 3;

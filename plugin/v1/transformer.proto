@@ -16,7 +16,7 @@ message TransformRequest {
   // apis/v1 WorkerAssignmentEndpoint as JSON; carries platformName, so there is no separate ref.
   bytes endpoint = 1;
   // the input (ModelInput.name) the task belongs to.
-  string input = 2;
+  string model_input = 2;
   // the task's name (CliCommand/HTTPRequest/TCPProbe.name): what a transform switches on when
   // an input is made of several tasks.
   string task = 3;

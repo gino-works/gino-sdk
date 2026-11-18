@@ -27,7 +27,7 @@ const (
 type EnrichTask struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the input (ModelInput.name) the task belongs to.
-	Input string `protobuf:"bytes,1,opt,name=input,proto3" json:"input,omitempty"`
+	ModelInput string `protobuf:"bytes,1,opt,name=model_input,json=modelInput,proto3" json:"model_input,omitempty"`
 	// the task's name (CliCommand/HTTPRequest/TCPProbe.name).
 	Task          string                 `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
@@ -66,9 +66,9 @@ func (*EnrichTask) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_enricher_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *EnrichTask) GetInput() string {
+func (x *EnrichTask) GetModelInput() string {
 	if x != nil {
-		return x.Input
+		return x.ModelInput
 	}
 	return ""
 }
@@ -213,10 +213,11 @@ var File_plugin_v1_enricher_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_enricher_proto_rawDesc = "" +
 	"\n" +
-	"\x18plugin/v1/enricher.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8f\x01\n" +
+	"\x18plugin/v1/enricher.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9a\x01\n" +
 	"\n" +
-	"EnrichTask\x12\x14\n" +
-	"\x05input\x18\x01 \x01(\tR\x05input\x12\x12\n" +
+	"EnrichTask\x12\x1f\n" +
+	"\vmodel_input\x18\x01 \x01(\tR\n" +
+	"modelInput\x12\x12\n" +
 	"\x04task\x18\x02 \x01(\tR\x04task\x12\x18\n" +
 	"\apayload\x18\x03 \x01(\fR\apayload\x12=\n" +
 	"\fcollected_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\x88\x01\n" +

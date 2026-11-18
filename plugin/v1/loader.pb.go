@@ -27,7 +27,7 @@ const (
 type LoadSource struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the input (ModelInput.name) the task belongs to.
-	Input string `protobuf:"bytes,1,opt,name=input,proto3" json:"input,omitempty"`
+	ModelInput string `protobuf:"bytes,1,opt,name=model_input,json=modelInput,proto3" json:"model_input,omitempty"`
 	// the task's name (CliCommand/HTTPRequest/TCPProbe.name).
 	Task          string                 `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
 	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
@@ -65,9 +65,9 @@ func (*LoadSource) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_loader_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *LoadSource) GetInput() string {
+func (x *LoadSource) GetModelInput() string {
 	if x != nil {
-		return x.Input
+		return x.ModelInput
 	}
 	return ""
 }
@@ -254,10 +254,11 @@ var File_plugin_v1_loader_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_loader_proto_rawDesc = "" +
 	"\n" +
-	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"u\n" +
+	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x80\x01\n" +
 	"\n" +
-	"LoadSource\x12\x14\n" +
-	"\x05input\x18\x01 \x01(\tR\x05input\x12\x12\n" +
+	"LoadSource\x12\x1f\n" +
+	"\vmodel_input\x18\x01 \x01(\tR\n" +
+	"modelInput\x12\x12\n" +
 	"\x04task\x18\x02 \x01(\tR\x04task\x12=\n" +
 	"\fcollected_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\xaf\x01\n" +
 	"\tLoadInput\x12\x1a\n" +

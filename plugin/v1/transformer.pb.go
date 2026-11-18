@@ -28,7 +28,7 @@ type TransformRequest struct {
 	// apis/v1 WorkerAssignmentEndpoint as JSON; carries platformName, so there is no separate ref.
 	Endpoint []byte `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
 	// the input (ModelInput.name) the task belongs to.
-	Input string `protobuf:"bytes,2,opt,name=input,proto3" json:"input,omitempty"`
+	ModelInput string `protobuf:"bytes,2,opt,name=model_input,json=modelInput,proto3" json:"model_input,omitempty"`
 	// the task's name (CliCommand/HTTPRequest/TCPProbe.name): what a transform switches on when
 	// an input is made of several tasks.
 	Task          string                 `protobuf:"bytes,3,opt,name=task,proto3" json:"task,omitempty"`
@@ -76,9 +76,9 @@ func (x *TransformRequest) GetEndpoint() []byte {
 	return nil
 }
 
-func (x *TransformRequest) GetInput() string {
+func (x *TransformRequest) GetModelInput() string {
 	if x != nil {
-		return x.Input
+		return x.ModelInput
 	}
 	return ""
 }
@@ -159,10 +159,11 @@ var File_plugin_v1_transformer_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_transformer_proto_rawDesc = "" +
 	"\n" +
-	"\x1bplugin/v1/transformer.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc1\x01\n" +
+	"\x1bplugin/v1/transformer.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcc\x01\n" +
 	"\x10TransformRequest\x12\x1a\n" +
-	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x14\n" +
-	"\x05input\x18\x02 \x01(\tR\x05input\x12\x12\n" +
+	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x1f\n" +
+	"\vmodel_input\x18\x02 \x01(\tR\n" +
+	"modelInput\x12\x12\n" +
 	"\x04task\x18\x03 \x01(\tR\x04task\x12\x18\n" +
 	"\apayload\x18\x04 \x01(\fR\apayload\x12=\n" +
 	"\fcollected_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12\x0e\n" +

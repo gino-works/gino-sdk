@@ -10,7 +10,7 @@ option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
 // Platform defined it for this kind, with everything it inherits from its input resolved onto it.
 message CollectTask {
   // the input (ModelInput.name / Platform.spec.inputs key) the task belongs to.
-  string input = 1;
+  string model_input = 1;
   // the task's name (CliCommand/HTTPRequest/TCPProbe.name). Informational -- impl carries it too
   // -- for logging and for plugins that key anything per task.
   string task = 2;

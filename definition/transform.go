@@ -19,8 +19,8 @@ type TransformRequest struct {
 	// for *how to read* the payload (or what to drop early). Decorating the output with endpoint
 	// data is enrich's job.
 	Endpoint ginosdkapisv1.WorkerAssignmentEndpoint
-	// Input is the input (ModelInput.name) the task belongs to.
-	Input string
+	// ModelInput is the input (ModelInput.name) the task belongs to.
+	ModelInput string
 	// Task is the task's name: CliCommand/HTTPRequest/TCPProbe.name.
 	Task        string
 	CollectedAt time.Time
@@ -57,8 +57,8 @@ func (r *Registry) Transform(
 		return nil, fmt.Errorf("%w: %q on platform %q", ErrUnknownInput, input, platform)
 	}
 
-	if req.Input == "" {
-		req.Input = input
+	if req.ModelInput == "" {
+		req.ModelInput = input
 	}
 
 	value, err := in.Transform(ctx, l, req)

@@ -25,7 +25,7 @@ func TransformRequestFromProto(
 
 	return TransformRequest{
 		Endpoint:    endpoint,
-		Input:       req.GetInput(),
+		ModelInput:  req.GetModelInput(),
 		Task:        req.GetTask(),
 		CollectedAt: protoTime(req.GetCollectedAt()),
 		Payload:     req.GetPayload(),
@@ -40,8 +40,8 @@ func EnrichInputsFromProto(
 	var out EnrichInputs
 
 	for _, task := range req.GetTasks() {
-		if len(out) == 0 || out[len(out)-1].Name != task.GetInput() {
-			out = append(out, EnrichInput{Name: task.GetInput()})
+		if len(out) == 0 || out[len(out)-1].Name != task.GetModelInput() {
+			out = append(out, EnrichInput{Name: task.GetModelInput()})
 		}
 
 		last := &out[len(out)-1]

@@ -28,7 +28,7 @@ const (
 type CollectTask struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the input (ModelInput.name / Platform.spec.inputs key) the task belongs to.
-	Input string `protobuf:"bytes,1,opt,name=input,proto3" json:"input,omitempty"`
+	ModelInput string `protobuf:"bytes,1,opt,name=model_input,json=modelInput,proto3" json:"model_input,omitempty"`
 	// the task's name (CliCommand/HTTPRequest/TCPProbe.name). Informational -- impl carries it too
 	// -- for logging and for plugins that key anything per task.
 	Task string `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
@@ -68,9 +68,9 @@ func (*CollectTask) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_collector_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CollectTask) GetInput() string {
+func (x *CollectTask) GetModelInput() string {
 	if x != nil {
-		return x.Input
+		return x.ModelInput
 	}
 	return ""
 }
@@ -444,9 +444,10 @@ var File_plugin_v1_collector_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x19plugin/v1/collector.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"K\n" +
-	"\vCollectTask\x12\x14\n" +
-	"\x05input\x18\x01 \x01(\tR\x05input\x12\x12\n" +
+	"\x19plugin/v1/collector.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"V\n" +
+	"\vCollectTask\x12\x1f\n" +
+	"\vmodel_input\x18\x01 \x01(\tR\n" +
+	"modelInput\x12\x12\n" +
 	"\x04task\x18\x02 \x01(\tR\x04task\x12\x12\n" +
 	"\x04impl\x18\x03 \x01(\fR\x04impl\"\x0e\n" +
 	"\fOpenResponse\"\xb4\x01\n" +

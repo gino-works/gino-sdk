@@ -13,7 +13,7 @@ service EnricherService {
 // EnrichTask is the transformed payload of one task of one input.
 message EnrichTask {
   // the input (ModelInput.name) the task belongs to.
-  string input = 1;
+  string model_input = 1;
   // the task's name (CliCommand/HTTPRequest/TCPProbe.name).
   string task = 2;
   bytes payload = 3;

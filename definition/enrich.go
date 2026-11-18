@@ -60,7 +60,7 @@ type Enrich func(
 
 // EnrichedTask is one decoded task payload.
 type EnrichedTask[T any] struct {
-	Input       string
+	ModelInput  string
 	Task        string
 	CollectedAt time.Time
 	Value       T
@@ -120,16 +120,21 @@ func DecodeEnrichTasks[T any](in EnrichInputs) ([]EnrichedTask[T], error) {
 	return out, nil
 }
 
-func decodeEnrichTask[T any](input string, task *EnrichTask) (EnrichedTask[T], error) {
+func decodeEnrichTask[T any](modelInput string, task *EnrichTask) (EnrichedTask[T], error) {
 	out := EnrichedTask[T]{
-		Input:       input,
+		ModelInput:  modelInput,
 		Task:        task.Name,
 		CollectedAt: task.CollectedAt,
 	}
 
 	err := json.Unmarshal(task.Payload, &out.Value)
 	if err != nil {
-		return EnrichedTask[T]{}, fmt.Errorf("input %q task %q: %w", input, task.Name, err)
+		return EnrichedTask[T]{}, fmt.Errorf(
+			"modelInput %q task %q: %w",
+			modelInput,
+			task.Name,
+			err,
+		)
 	}
 
 	return out, nil
@@ -139,7 +144,8 @@ func decodeEnrichTask[T any](input string, task *EnrichTask) (EnrichedTask[T], e
 func (r *Registry) Enrich(
 	ctx context.Context,
 	l *slog.Logger,
-	model, version string,
+	model,
+	version string,
 	endpoint ginosdkapisv1.WorkerAssignmentEndpoint,
 	inputs EnrichInputs,
 ) (any, error) {
