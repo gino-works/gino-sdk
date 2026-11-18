@@ -6,15 +6,16 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
 
-// Input is one part (task) of one input to collect, as the Platform defined it for this kind.
-message Input {
-  // the logical, model facing input (ModelInput.name) the task belongs to.
-  string name = 1;
-  // the actual task to execute -- the CliCommand/HTTPRequest/TCPProbe as json.
-  bytes impl = 2;
-  // the task: the CliCommand/HTTPRequest/TCPProbe name impl holds. Informational -- impl already
-  // is that one part -- for logging and for plugins that key anything per task.
-  string task = 3;
+// CollectTask is one task of one input to collect: a CliCommand, HTTPRequest or TCPProbe, as the
+// Platform defined it for this kind, with everything it inherits from its input resolved onto it.
+message CollectTask {
+  // the input (ModelInput.name / Platform.spec.inputs key) the task belongs to.
+  string input = 1;
+  // the task's name (CliCommand/HTTPRequest/TCPProbe.name). Informational -- impl carries it too
+  // -- for logging and for plugins that key anything per task.
+  string task = 2;
+  // the task to execute: the CliCommand/HTTPRequest/TCPProbe as JSON.
+  bytes impl = 3;
 }
 
 service CollectorService {
@@ -44,7 +45,9 @@ message OpenRequest {
 message CollectRequest {
   // the session; the same bytes as Open. The plugin keys sessions by namespace/name.
   bytes endpoint = 1;
-  Input input = 2;
+  // the collection task to do -- task holds the model input and task name, then the actual task
+  // json for the collector to do (clicommand/tcpprobe/httprequest/etc.).
+  CollectTask task = 2;
 }
 
 // Collected is one payload out of a task. Its associated upstream by endpoint/input/task -- w/ the

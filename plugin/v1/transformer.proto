@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/gino-works/gino-sdk/plugin/v1;ginopluginv1";
 
 // TransformerService turns a raw payload into structured data. Stateless; one call per collected
-// payload -- i.e. per part (task) of an input, never a whole multi-part input at once.
+// payload -- i.e. per task of an input, never a whole input of several tasks at once.
 service TransformerService {
   rpc Transform(TransformRequest) returns (TransformResponse);
 }
@@ -15,10 +15,10 @@ service TransformerService {
 message TransformRequest {
   // apis/v1 WorkerAssignmentEndpoint as JSON; carries platformName, so there is no separate ref.
   bytes endpoint = 1;
-  // Input.name -- the logical, model facing input this part belongs to.
+  // the input (ModelInput.name) the task belongs to.
   string input = 2;
-  // the part of the input this payload is: the CliCommand/HTTPRequest/TCPProbe name. what a
-  // transform switches on when an input is made of several parts.
+  // the task's name (CliCommand/HTTPRequest/TCPProbe.name): what a transform switches on when
+  // an input is made of several tasks.
   string task = 3;
   bytes payload = 4;
   google.protobuf.Timestamp collected_at = 5;

@@ -8,9 +8,9 @@ type TCPOptions struct{}
 type TCPPlatformInput struct {
 	TCPOptions `json:",inline"`
 
-	// Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
+	// Probes are all run, in order, against the endpoint. Each probe is one task of the
 	// input: transformed on its own, cached by the enricher under its name, and the input is
-	// complete once every part is present.
+	// complete once every task is present.
 	// +listType=map
 	// +listMapKey=name
 	// +kubebuilder:validation:MinItems=1
@@ -21,8 +21,8 @@ type TCPPlatformInput struct {
 type TCPProbe struct {
 	TCPOptions `json:",inline"`
 
-	// Name is the part (task) name: unique within the input, what transforms switch on and what
-	// the enricher caches the part under.
+	// Name is the task name: unique within the input, what transforms switch on and what the
+	// enricher caches the task under.
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`

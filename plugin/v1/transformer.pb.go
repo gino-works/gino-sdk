@@ -27,10 +27,10 @@ type TransformRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// apis/v1 WorkerAssignmentEndpoint as JSON; carries platformName, so there is no separate ref.
 	Endpoint []byte `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
-	// Input.name -- the logical, model facing input this part belongs to.
+	// the input (ModelInput.name) the task belongs to.
 	Input string `protobuf:"bytes,2,opt,name=input,proto3" json:"input,omitempty"`
-	// the part of the input this payload is: the CliCommand/HTTPRequest/TCPProbe name. what a
-	// transform switches on when an input is made of several parts.
+	// the task's name (CliCommand/HTTPRequest/TCPProbe.name): what a transform switches on when
+	// an input is made of several tasks.
 	Task          string                 `protobuf:"bytes,3,opt,name=task,proto3" json:"task,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,4,opt,name=payload,proto3" json:"payload,omitempty"`
 	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`

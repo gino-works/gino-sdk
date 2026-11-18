@@ -13,9 +13,9 @@ import (
 // for every child task, tasks override this if set, otherwise inherit it.
 type TCPPlatformInputApplyConfiguration struct {
 	apisv1.TCPOptions `json:""`
-	// Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
+	// Probes are all run, in order, against the endpoint. Each probe is one task of the
 	// input: transformed on its own, cached by the enricher under its name, and the input is
-	// complete once every part is present.
+	// complete once every task is present.
 	Probes []TCPProbeApplyConfiguration `json:"probes,omitempty"`
 }
 

@@ -14,9 +14,8 @@ type HTTPOptions struct {
 type HTTPPlatformInput struct {
 	HTTPOptions `json:",inline"`
 
-	// Requests are all run, in order, against the endpoint's session. Each request is one part
-	// (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
-	// transformed on their own; the input is complete once every part is present.
+	// Requests are all run, in order, against the endpoint's session. Each request is one task of the input, producing one (or, for fan-out APIs, many) payloads that are
+	// transformed on their own; the input is complete once every task is present.
 	// +listType=map
 	// +listMapKey=name
 	// +kubebuilder:validation:MinItems=1
@@ -27,8 +26,8 @@ type HTTPPlatformInput struct {
 type HTTPRequest struct {
 	HTTPOptions `json:",inline"`
 
-	// Name is the part (task) name: unique within the input, what transforms switch on and what
-	// the enricher caches the part under.
+	// Name is the task name: unique within the input, what transforms switch on and what the
+	// enricher caches the task under.
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`

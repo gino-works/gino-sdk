@@ -12,9 +12,9 @@ type CliOptions struct {
 type CliPlatformInput struct {
 	CliOptions `json:",inline"`
 
-	// Commands are all run, in order, on the endpoint's session. Each command is one part (task)
+	// Commands are all run, in order, on the endpoint's session. Each command is one task
 	// of the input: transformed on its own, cached by the enricher under its name, and the input
-	// is complete once every part is present.
+	// is complete once every task is present.
 	// +listType=map
 	// +listMapKey=name
 	// +kubebuilder:validation:MinItems=1
@@ -25,8 +25,8 @@ type CliPlatformInput struct {
 type CliCommand struct {
 	CliOptions `json:",inline"`
 
-	// Name is the part (task) name: unique within the input, what transforms switch on and what
-	// the enricher caches the part under.
+	// Name is the task name: unique within the input, what transforms switch on and what the
+	// enricher caches the task under.
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`

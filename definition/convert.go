@@ -32,26 +32,26 @@ func TransformRequestFromProto(
 	}, nil
 }
 
-// EnrichInputsFromProto converts an Enrich RPC request's flat, ordered part list into
-// EnrichInputs: consecutive parts of the same input are grouped, order is kept.
+// EnrichInputsFromProto converts an Enrich RPC request's flat, ordered task list into
+// EnrichInputs: consecutive tasks of the same input are grouped, order is kept.
 func EnrichInputsFromProto(
 	req *ginosdkpluginv1.EnrichRequest,
 ) EnrichInputs {
 	var out EnrichInputs
 
-	for _, part := range req.GetInputs() {
-		if len(out) == 0 || out[len(out)-1].Name != part.GetName() {
-			out = append(out, EnrichInput{Name: part.GetName()})
+	for _, task := range req.GetTasks() {
+		if len(out) == 0 || out[len(out)-1].Name != task.GetInput() {
+			out = append(out, EnrichInput{Name: task.GetInput()})
 		}
 
 		last := &out[len(out)-1]
 
-		last.Parts = append(
-			last.Parts,
-			EnrichPart{
-				Task:        part.GetTask(),
-				CollectedAt: protoTime(part.GetCollectedAt()),
-				Payload:     part.GetPayload(),
+		last.Tasks = append(
+			last.Tasks,
+			EnrichTask{
+				Name:        task.GetTask(),
+				CollectedAt: protoTime(task.GetCollectedAt()),
+				Payload:     task.GetPayload(),
 			},
 		)
 	}

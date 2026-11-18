@@ -14,9 +14,8 @@ import (
 // plugin provides, and the plugin does whatever that API needs.
 type HTTPPlatformInputApplyConfiguration struct {
 	HTTPOptionsApplyConfiguration `json:""`
-	// Requests are all run, in order, against the endpoint's session. Each request is one part
-	// (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
-	// transformed on their own; the input is complete once every part is present.
+	// Requests are all run, in order, against the endpoint's session. Each request is one task of the input, producing one (or, for fan-out APIs, many) payloads that are
+	// transformed on their own; the input is complete once every task is present.
 	Requests []HTTPRequestApplyConfiguration `json:"requests,omitempty"`
 }
 

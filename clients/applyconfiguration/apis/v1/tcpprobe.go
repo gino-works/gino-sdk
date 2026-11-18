@@ -12,8 +12,8 @@ import (
 // TCPProbe holds data about a tcp probe.
 type TCPProbeApplyConfiguration struct {
 	apisv1.TCPOptions `json:""`
-	// Name is the part (task) name: unique within the input, what transforms switch on and what
-	// the enricher caches the part under.
+	// Name is the task name: unique within the input, what transforms switch on and what the
+	// enricher caches the task under.
 	Name *string `json:"name,omitempty"`
 	Port *int    `json:"port,omitempty"`
 }

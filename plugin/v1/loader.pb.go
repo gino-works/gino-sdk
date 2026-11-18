@@ -23,32 +23,32 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// LoadInputSource is provenance: one part that went into the enriched model.
-type LoadInputSource struct {
+// LoadSource is provenance: one task whose payload went into the enriched model.
+type LoadSource struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// the input (ModelInput.name).
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// the part (task) of the input.
+	// the input (ModelInput.name) the task belongs to.
+	Input string `protobuf:"bytes,1,opt,name=input,proto3" json:"input,omitempty"`
+	// the task's name (CliCommand/HTTPRequest/TCPProbe.name).
 	Task          string                 `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
 	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *LoadInputSource) Reset() {
-	*x = LoadInputSource{}
+func (x *LoadSource) Reset() {
+	*x = LoadSource{}
 	mi := &file_plugin_v1_loader_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *LoadInputSource) String() string {
+func (x *LoadSource) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LoadInputSource) ProtoMessage() {}
+func (*LoadSource) ProtoMessage() {}
 
-func (x *LoadInputSource) ProtoReflect() protoreflect.Message {
+func (x *LoadSource) ProtoReflect() protoreflect.Message {
 	mi := &file_plugin_v1_loader_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -60,26 +60,26 @@ func (x *LoadInputSource) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LoadInputSource.ProtoReflect.Descriptor instead.
-func (*LoadInputSource) Descriptor() ([]byte, []int) {
+// Deprecated: Use LoadSource.ProtoReflect.Descriptor instead.
+func (*LoadSource) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_loader_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *LoadInputSource) GetName() string {
+func (x *LoadSource) GetInput() string {
 	if x != nil {
-		return x.Name
+		return x.Input
 	}
 	return ""
 }
 
-func (x *LoadInputSource) GetTask() string {
+func (x *LoadSource) GetTask() string {
 	if x != nil {
 		return x.Task
 	}
 	return ""
 }
 
-func (x *LoadInputSource) GetCollectedAt() *timestamppb.Timestamp {
+func (x *LoadSource) GetCollectedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CollectedAt
 	}
@@ -91,7 +91,7 @@ type LoadInput struct {
 	Endpoint      []byte                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
 	EnrichedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=enriched_at,json=enrichedAt,proto3" json:"enriched_at,omitempty"`
-	Inputs        []*LoadInputSource     `protobuf:"bytes,4,rep,name=inputs,proto3" json:"inputs,omitempty"`
+	Sources       []*LoadSource          `protobuf:"bytes,4,rep,name=sources,proto3" json:"sources,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -147,9 +147,9 @@ func (x *LoadInput) GetEnrichedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *LoadInput) GetInputs() []*LoadInputSource {
+func (x *LoadInput) GetSources() []*LoadSource {
 	if x != nil {
-		return x.Inputs
+		return x.Sources
 	}
 	return nil
 }
@@ -254,17 +254,18 @@ var File_plugin_v1_loader_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_loader_proto_rawDesc = "" +
 	"\n" +
-	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"x\n" +
-	"\x0fLoadInputSource\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x16plugin/v1/loader.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"u\n" +
+	"\n" +
+	"LoadSource\x12\x14\n" +
+	"\x05input\x18\x01 \x01(\tR\x05input\x12\x12\n" +
 	"\x04task\x18\x02 \x01(\tR\x04task\x12=\n" +
-	"\fcollected_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\xb2\x01\n" +
+	"\fcollected_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\xaf\x01\n" +
 	"\tLoadInput\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\fR\apayload\x12;\n" +
 	"\venriched_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"enrichedAt\x122\n" +
-	"\x06inputs\x18\x04 \x03(\v2\x1a.plugin.v1.LoadInputSourceR\x06inputs\"k\n" +
+	"enrichedAt\x12/\n" +
+	"\asources\x18\x04 \x03(\v2\x15.plugin.v1.LoadSourceR\asources\"k\n" +
 	"\vLoadRequest\x12\x14\n" +
 	"\x05model\x18\x01 \x01(\tR\x05model\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12,\n" +
@@ -287,16 +288,16 @@ func file_plugin_v1_loader_proto_rawDescGZIP() []byte {
 
 var file_plugin_v1_loader_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_plugin_v1_loader_proto_goTypes = []any{
-	(*LoadInputSource)(nil),       // 0: plugin.v1.LoadInputSource
+	(*LoadSource)(nil),            // 0: plugin.v1.LoadSource
 	(*LoadInput)(nil),             // 1: plugin.v1.LoadInput
 	(*LoadRequest)(nil),           // 2: plugin.v1.LoadRequest
 	(*LoadResponse)(nil),          // 3: plugin.v1.LoadResponse
 	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
 }
 var file_plugin_v1_loader_proto_depIdxs = []int32{
-	4, // 0: plugin.v1.LoadInputSource.collected_at:type_name -> google.protobuf.Timestamp
+	4, // 0: plugin.v1.LoadSource.collected_at:type_name -> google.protobuf.Timestamp
 	4, // 1: plugin.v1.LoadInput.enriched_at:type_name -> google.protobuf.Timestamp
-	0, // 2: plugin.v1.LoadInput.inputs:type_name -> plugin.v1.LoadInputSource
+	0, // 2: plugin.v1.LoadInput.sources:type_name -> plugin.v1.LoadSource
 	1, // 3: plugin.v1.LoadRequest.inputs:type_name -> plugin.v1.LoadInput
 	2, // 4: plugin.v1.LoaderService.Load:input_type -> plugin.v1.LoadRequest
 	3, // 5: plugin.v1.LoaderService.Load:output_type -> plugin.v1.LoadResponse

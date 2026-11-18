@@ -23,34 +23,35 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Input is one part (task) of one input to collect, as the Platform defined it for this kind.
-type Input struct {
+// CollectTask is one task of one input to collect: a CliCommand, HTTPRequest or TCPProbe, as the
+// Platform defined it for this kind, with everything it inherits from its input resolved onto it.
+type CollectTask struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// the logical, model facing input (ModelInput.name) the task belongs to.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// the actual task to execute -- the CliCommand/HTTPRequest/TCPProbe as json.
-	Impl []byte `protobuf:"bytes,2,opt,name=impl,proto3" json:"impl,omitempty"`
-	// the task: the CliCommand/HTTPRequest/TCPProbe name impl holds. Informational -- impl already
-	// is that one part -- for logging and for plugins that key anything per task.
-	Task          string `protobuf:"bytes,3,opt,name=task,proto3" json:"task,omitempty"`
+	// the input (ModelInput.name / Platform.spec.inputs key) the task belongs to.
+	Input string `protobuf:"bytes,1,opt,name=input,proto3" json:"input,omitempty"`
+	// the task's name (CliCommand/HTTPRequest/TCPProbe.name). Informational -- impl carries it too
+	// -- for logging and for plugins that key anything per task.
+	Task string `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
+	// the task to execute: the CliCommand/HTTPRequest/TCPProbe as JSON.
+	Impl          []byte `protobuf:"bytes,3,opt,name=impl,proto3" json:"impl,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Input) Reset() {
-	*x = Input{}
+func (x *CollectTask) Reset() {
+	*x = CollectTask{}
 	mi := &file_plugin_v1_collector_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Input) String() string {
+func (x *CollectTask) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Input) ProtoMessage() {}
+func (*CollectTask) ProtoMessage() {}
 
-func (x *Input) ProtoReflect() protoreflect.Message {
+func (x *CollectTask) ProtoReflect() protoreflect.Message {
 	mi := &file_plugin_v1_collector_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -62,30 +63,30 @@ func (x *Input) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Input.ProtoReflect.Descriptor instead.
-func (*Input) Descriptor() ([]byte, []int) {
+// Deprecated: Use CollectTask.ProtoReflect.Descriptor instead.
+func (*CollectTask) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_collector_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Input) GetName() string {
+func (x *CollectTask) GetInput() string {
 	if x != nil {
-		return x.Name
+		return x.Input
 	}
 	return ""
 }
 
-func (x *Input) GetImpl() []byte {
-	if x != nil {
-		return x.Impl
-	}
-	return nil
-}
-
-func (x *Input) GetTask() string {
+func (x *CollectTask) GetTask() string {
 	if x != nil {
 		return x.Task
 	}
 	return ""
+}
+
+func (x *CollectTask) GetImpl() []byte {
+	if x != nil {
+		return x.Impl
+	}
+	return nil
 }
 
 type OpenResponse struct {
@@ -182,8 +183,10 @@ func (x *OpenRequest) GetCredentials() map[string][]byte {
 type CollectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the session; the same bytes as Open. The plugin keys sessions by namespace/name.
-	Endpoint      []byte `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
-	Input         *Input `protobuf:"bytes,2,opt,name=input,proto3" json:"input,omitempty"`
+	Endpoint []byte `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	// the collection task to do -- task holds the model input and task name, then the actual task
+	// json for the collector to do (clicommand/tcpprobe/httprequest/etc.).
+	Task          *CollectTask `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -225,9 +228,9 @@ func (x *CollectRequest) GetEndpoint() []byte {
 	return nil
 }
 
-func (x *CollectRequest) GetInput() *Input {
+func (x *CollectRequest) GetTask() *CollectTask {
 	if x != nil {
-		return x.Input
+		return x.Task
 	}
 	return nil
 }
@@ -441,21 +444,21 @@ var File_plugin_v1_collector_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x19plugin/v1/collector.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"C\n" +
-	"\x05Input\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04impl\x18\x02 \x01(\fR\x04impl\x12\x12\n" +
-	"\x04task\x18\x03 \x01(\tR\x04task\"\x0e\n" +
+	"\x19plugin/v1/collector.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"K\n" +
+	"\vCollectTask\x12\x14\n" +
+	"\x05input\x18\x01 \x01(\tR\x05input\x12\x12\n" +
+	"\x04task\x18\x02 \x01(\tR\x04task\x12\x12\n" +
+	"\x04impl\x18\x03 \x01(\fR\x04impl\"\x0e\n" +
 	"\fOpenResponse\"\xb4\x01\n" +
 	"\vOpenRequest\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12I\n" +
 	"\vcredentials\x18\x02 \x03(\v2'.plugin.v1.OpenRequest.CredentialsEntryR\vcredentials\x1a>\n" +
 	"\x10CredentialsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"T\n" +
+	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"X\n" +
 	"\x0eCollectRequest\x12\x1a\n" +
-	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12&\n" +
-	"\x05input\x18\x02 \x01(\v2\x10.plugin.v1.InputR\x05input\"\x96\x01\n" +
+	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12*\n" +
+	"\x04task\x18\x02 \x01(\v2\x16.plugin.v1.CollectTaskR\x04task\"\x96\x01\n" +
 	"\tCollected\x12\x18\n" +
 	"\apayload\x18\x01 \x01(\fR\apayload\x12=\n" +
 	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12\x14\n" +
@@ -485,7 +488,7 @@ func file_plugin_v1_collector_proto_rawDescGZIP() []byte {
 
 var file_plugin_v1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_plugin_v1_collector_proto_goTypes = []any{
-	(*Input)(nil),                 // 0: plugin.v1.Input
+	(*CollectTask)(nil),           // 0: plugin.v1.CollectTask
 	(*OpenResponse)(nil),          // 1: plugin.v1.OpenResponse
 	(*OpenRequest)(nil),           // 2: plugin.v1.OpenRequest
 	(*CollectRequest)(nil),        // 3: plugin.v1.CollectRequest
@@ -498,7 +501,7 @@ var file_plugin_v1_collector_proto_goTypes = []any{
 }
 var file_plugin_v1_collector_proto_depIdxs = []int32{
 	8, // 0: plugin.v1.OpenRequest.credentials:type_name -> plugin.v1.OpenRequest.CredentialsEntry
-	0, // 1: plugin.v1.CollectRequest.input:type_name -> plugin.v1.Input
+	0, // 1: plugin.v1.CollectRequest.task:type_name -> plugin.v1.CollectTask
 	9, // 2: plugin.v1.Collected.collected_at:type_name -> google.protobuf.Timestamp
 	4, // 3: plugin.v1.CollectResponse.collected:type_name -> plugin.v1.Collected
 	2, // 4: plugin.v1.CollectorService.Open:input_type -> plugin.v1.OpenRequest

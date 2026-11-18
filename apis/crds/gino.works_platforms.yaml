@@ -53,9 +53,9 @@ spec:
                       properties:
                         commands:
                           description: |-
-                            Commands are all run, in order, on the endpoint's session. Each command is one part (task)
+                            Commands are all run, in order, on the endpoint's session. Each command is one task
                             of the input: transformed on its own, cached by the enricher under its name, and the input
-                            is complete once every part is present.
+                            is complete once every task is present.
                           items:
                             description: CliCommand is a single command/input to a
                               cli device.
@@ -66,8 +66,8 @@ spec:
                                 type: string
                               name:
                                 description: |-
-                                  Name is the part (task) name: unique within the input, what transforms switch on and what
-                                  the enricher caches the part under.
+                                  Name is the task name: unique within the input, what transforms switch on and what the
+                                  enricher caches the task under.
                                 maxLength: 63
                                 minLength: 1
                                 pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -93,9 +93,8 @@ spec:
                       properties:
                         requests:
                           description: |-
-                            Requests are all run, in order, against the endpoint's session. Each request is one part
-                            (task) of the input, producing one (or, for fan-out APIs, many) payloads that are
-                            transformed on their own; the input is complete once every part is present.
+                            Requests are all run, in order, against the endpoint's session. Each request is one task of the input, producing one (or, for fan-out APIs, many) payloads that are
+                            transformed on their own; the input is complete once every task is present.
                           items:
                             description: HTTPRequest is one named call the plugin
                               knows how to make.
@@ -113,8 +112,8 @@ spec:
                                 type: string
                               name:
                                 description: |-
-                                  Name is the part (task) name: unique within the input, what transforms switch on and what
-                                  the enricher caches the part under.
+                                  Name is the task name: unique within the input, what transforms switch on and what the
+                                  enricher caches the task under.
                                 maxLength: 63
                                 minLength: 1
                                 pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -140,16 +139,16 @@ spec:
                       properties:
                         probes:
                           description: |-
-                            Probes are all run, in order, against the endpoint. Each probe is one part (task) of the
+                            Probes are all run, in order, against the endpoint. Each probe is one task of the
                             input: transformed on its own, cached by the enricher under its name, and the input is
-                            complete once every part is present.
+                            complete once every task is present.
                           items:
                             description: TCPProbe holds data about a tcp probe.
                             properties:
                               name:
                                 description: |-
-                                  Name is the part (task) name: unique within the input, what transforms switch on and what
-                                  the enricher caches the part under.
+                                  Name is the task name: unique within the input, what transforms switch on and what the
+                                  enricher caches the task under.
                                 maxLength: 63
                                 minLength: 1
                                 pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$

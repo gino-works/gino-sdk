@@ -10,24 +10,24 @@ import (
 	ginosdkapisv1 "github.com/gino-works/gino-sdk/apis/v1"
 )
 
-// TransformRequest is one part (task) of one input to transform. Inputs can be made of several
-// parts (cli commands, http requests, tcp probes); each is transformed on its own, so a transform
-// for a multi-part input switches on Task. The conventional output is a partial instance of the
-// model(s) the input feeds -- enrich then merges the parts.
+// TransformRequest is the payload of one task of one input to transform. An input can be made of
+// several tasks (cli commands, http requests, tcp probes); each is transformed on its own, so a
+// transform for such an input switches on Task. The conventional output is a partial instance of
+// the model(s) the input feeds -- enrich then merges the tasks' outputs.
 type TransformRequest struct {
 	// Endpoint is the endpoint the payload came from: tags, interface tags, location -- context
 	// for *how to read* the payload (or what to drop early). Decorating the output with endpoint
 	// data is enrich's job.
 	Endpoint ginosdkapisv1.WorkerAssignmentEndpoint
-	// Input is the logical input (ModelInput.name) this part belongs to.
+	// Input is the input (ModelInput.name) the task belongs to.
 	Input string
-	// Task is the part of the input: the CliCommand/HTTPRequest/TCPProbe name.
+	// Task is the task's name: CliCommand/HTTPRequest/TCPProbe.name.
 	Task        string
 	CollectedAt time.Time
 	Payload     []byte
 }
 
-// Transform accepts one part of an input and returns the transformed version of it.
+// Transform accepts one task's payload and returns the transformed version of it.
 type Transform func(
 	ctx context.Context,
 	l *slog.Logger,

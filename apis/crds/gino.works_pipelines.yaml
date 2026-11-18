@@ -1099,8 +1099,8 @@ spec:
                                               type: string
                                             name:
                                               description: |-
-                                                Name is the part (task) name: unique within the input, what transforms switch on and what
-                                                the enricher caches the part under.
+                                                Name is the task name: unique within the input, what transforms switch on and what the
+                                                enricher caches the task under.
                                               maxLength: 63
                                               minLength: 1
                                               pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -1128,8 +1128,8 @@ spec:
                                               type: string
                                             name:
                                               description: |-
-                                                Name is the part (task) name: unique within the input, what transforms switch on and what
-                                                the enricher caches the part under.
+                                                Name is the task name: unique within the input, what transforms switch on and what the
+                                                enricher caches the task under.
                                               maxLength: 63
                                               minLength: 1
                                               pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -1151,8 +1151,8 @@ spec:
                                           properties:
                                             name:
                                               description: |-
-                                                Name is the part (task) name: unique within the input, what transforms switch on and what
-                                                the enricher caches the part under.
+                                                Name is the task name: unique within the input, what transforms switch on and what the
+                                                enricher caches the task under.
                                               maxLength: 63
                                               minLength: 1
                                               pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$

@@ -12,9 +12,9 @@ import (
 // CliPlatformInput holds input data for a cli input.
 type CliPlatformInputApplyConfiguration struct {
 	CliOptionsApplyConfiguration `json:""`
-	// Commands are all run, in order, on the endpoint's session. Each command is one part (task)
+	// Commands are all run, in order, on the endpoint's session. Each command is one task
 	// of the input: transformed on its own, cached by the enricher under its name, and the input
-	// is complete once every part is present.
+	// is complete once every task is present.
 	Commands []CliCommandApplyConfiguration `json:"commands,omitempty"`
 }
 

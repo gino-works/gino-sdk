@@ -23,12 +23,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// EnrichInput is one transformed part of one input.
-type EnrichInput struct {
+// EnrichTask is the transformed payload of one task of one input.
+type EnrichTask struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// the input (ModelInput.name) this part belongs to.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// the part (task) of the input: CliCommand/HTTPRequest/TCPProbe name.
+	// the input (ModelInput.name) the task belongs to.
+	Input string `protobuf:"bytes,1,opt,name=input,proto3" json:"input,omitempty"`
+	// the task's name (CliCommand/HTTPRequest/TCPProbe.name).
 	Task          string                 `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
 	CollectedAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
@@ -36,20 +36,20 @@ type EnrichInput struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EnrichInput) Reset() {
-	*x = EnrichInput{}
+func (x *EnrichTask) Reset() {
+	*x = EnrichTask{}
 	mi := &file_plugin_v1_enricher_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EnrichInput) String() string {
+func (x *EnrichTask) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EnrichInput) ProtoMessage() {}
+func (*EnrichTask) ProtoMessage() {}
 
-func (x *EnrichInput) ProtoReflect() protoreflect.Message {
+func (x *EnrichTask) ProtoReflect() protoreflect.Message {
 	mi := &file_plugin_v1_enricher_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -61,33 +61,33 @@ func (x *EnrichInput) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EnrichInput.ProtoReflect.Descriptor instead.
-func (*EnrichInput) Descriptor() ([]byte, []int) {
+// Deprecated: Use EnrichTask.ProtoReflect.Descriptor instead.
+func (*EnrichTask) Descriptor() ([]byte, []int) {
 	return file_plugin_v1_enricher_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *EnrichInput) GetName() string {
+func (x *EnrichTask) GetInput() string {
 	if x != nil {
-		return x.Name
+		return x.Input
 	}
 	return ""
 }
 
-func (x *EnrichInput) GetTask() string {
+func (x *EnrichTask) GetTask() string {
 	if x != nil {
 		return x.Task
 	}
 	return ""
 }
 
-func (x *EnrichInput) GetPayload() []byte {
+func (x *EnrichTask) GetPayload() []byte {
 	if x != nil {
 		return x.Payload
 	}
 	return nil
 }
 
-func (x *EnrichInput) GetCollectedAt() *timestamppb.Timestamp {
+func (x *EnrichTask) GetCollectedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CollectedAt
 	}
@@ -99,10 +99,10 @@ type EnrichRequest struct {
 	Endpoint []byte                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
 	Model    string                 `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`
 	Version  string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
-	// every part of every input of the model version, ordered: inputs in the model version's input
-	// order, and within an input its parts in the platform's order. parts of one input are
+	// every task of every input of the model version, ordered: inputs in the model version's input
+	// order, and within an input its tasks in the platform's order. tasks of one input are
 	// contiguous.
-	Inputs        []*EnrichInput `protobuf:"bytes,4,rep,name=inputs,proto3" json:"inputs,omitempty"`
+	Tasks         []*EnrichTask `protobuf:"bytes,4,rep,name=tasks,proto3" json:"tasks,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -158,9 +158,9 @@ func (x *EnrichRequest) GetVersion() string {
 	return ""
 }
 
-func (x *EnrichRequest) GetInputs() []*EnrichInput {
+func (x *EnrichRequest) GetTasks() []*EnrichTask {
 	if x != nil {
-		return x.Inputs
+		return x.Tasks
 	}
 	return nil
 }
@@ -213,17 +213,18 @@ var File_plugin_v1_enricher_proto protoreflect.FileDescriptor
 
 const file_plugin_v1_enricher_proto_rawDesc = "" +
 	"\n" +
-	"\x18plugin/v1/enricher.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x01\n" +
-	"\vEnrichInput\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x18plugin/v1/enricher.proto\x12\tplugin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8f\x01\n" +
+	"\n" +
+	"EnrichTask\x12\x14\n" +
+	"\x05input\x18\x01 \x01(\tR\x05input\x12\x12\n" +
 	"\x04task\x18\x02 \x01(\tR\x04task\x12\x18\n" +
 	"\apayload\x18\x03 \x01(\fR\apayload\x12=\n" +
-	"\fcollected_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\x8b\x01\n" +
+	"\fcollected_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\x88\x01\n" +
 	"\rEnrichRequest\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\fR\bendpoint\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12\x18\n" +
-	"\aversion\x18\x03 \x01(\tR\aversion\x12.\n" +
-	"\x06inputs\x18\x04 \x03(\v2\x16.plugin.v1.EnrichInputR\x06inputs\"$\n" +
+	"\aversion\x18\x03 \x01(\tR\aversion\x12+\n" +
+	"\x05tasks\x18\x04 \x03(\v2\x15.plugin.v1.EnrichTaskR\x05tasks\"$\n" +
 	"\x0eEnrichResponse\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data2P\n" +
 	"\x0fEnricherService\x12=\n" +
@@ -243,14 +244,14 @@ func file_plugin_v1_enricher_proto_rawDescGZIP() []byte {
 
 var file_plugin_v1_enricher_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_plugin_v1_enricher_proto_goTypes = []any{
-	(*EnrichInput)(nil),           // 0: plugin.v1.EnrichInput
+	(*EnrichTask)(nil),            // 0: plugin.v1.EnrichTask
 	(*EnrichRequest)(nil),         // 1: plugin.v1.EnrichRequest
 	(*EnrichResponse)(nil),        // 2: plugin.v1.EnrichResponse
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_plugin_v1_enricher_proto_depIdxs = []int32{
-	3, // 0: plugin.v1.EnrichInput.collected_at:type_name -> google.protobuf.Timestamp
-	0, // 1: plugin.v1.EnrichRequest.inputs:type_name -> plugin.v1.EnrichInput
+	3, // 0: plugin.v1.EnrichTask.collected_at:type_name -> google.protobuf.Timestamp
+	0, // 1: plugin.v1.EnrichRequest.tasks:type_name -> plugin.v1.EnrichTask
 	1, // 2: plugin.v1.EnricherService.Enrich:input_type -> plugin.v1.EnrichRequest
 	2, // 3: plugin.v1.EnricherService.Enrich:output_type -> plugin.v1.EnrichResponse
 	3, // [3:4] is the sub-list for method output_type
