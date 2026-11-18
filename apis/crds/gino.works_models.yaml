@@ -84,12 +84,17 @@ spec:
                         type: object
                       type: array
                     loadSpec:
+                      default: {}
                       description: |-
                         ModelLoadSpec defines the criteria for when a loader passes the received enriched messages to
                         the loader server.
                       properties:
                         maxCount:
                           default: 100
+                          description: MaxCount is how many documents the loader batches
+                            before loading; whichever of MaxWait or MaxCount is hit
+                            first wins.
+                          minimum: 1
                           type: integer
                         maxWait:
                           default: 3m
@@ -98,8 +103,9 @@ spec:
                             that the loader's consumer ack wait can be a constant that always exceeds it.
                           type: string
                           x-kubernetes-validations:
-                          - message: maxWait may not exceed 5m
-                            rule: duration(self) <= duration('5m')
+                          - message: maxWait must be greater than 0 and at most 5m
+                            rule: duration(self) > duration('0s') && duration(self)
+                              <= duration('5m')
                       type: object
                     version:
                       type: string

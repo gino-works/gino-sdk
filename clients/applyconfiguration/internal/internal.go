@@ -773,6 +773,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: loadSpec
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.ModelLoadSpec
+      default: {}
     - name: version
       type:
         scalar: string

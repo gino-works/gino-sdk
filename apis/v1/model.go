@@ -44,6 +44,7 @@ type ModelSpec struct {
 type ModelVersion struct {
 	Version string       `json:"version"`
 	Inputs  []ModelInput `json:"inputs"`
+	// +kubebuilder:default={}
 	// +optional
 	LoadSpec ModelLoadSpec `json:"loadSpec"`
 }
@@ -70,12 +71,14 @@ type ModelLoadSpec struct {
 	// MaxWait is how long the loader holds a batch open waiting for more documents. It is capped so
 	// that the loader's consumer ack wait can be a constant that always exceeds it.
 	// +kubebuilder:default="3m"
-	// +kubebuilder:validation:XValidation:rule="duration(self) <= duration('5m')",message="maxWait may not exceed 5m"
+	// +kubebuilder:validation:XValidation:rule="duration(self) > duration('0s') && duration(self) <= duration('5m')",message="maxWait must be greater than 0 and at most 5m"
 	// +optional
-	MaxWait apimachineryapismetav1.Duration `json:"maxWait"`
+	MaxWait apimachineryapismetav1.Duration `json:"maxWait,omitzero"`
+	// MaxCount is how many documents the loader batches before loading; whichever of MaxWait or MaxCount is hit first wins.
 	// +kubebuilder:default=100
+	// +kubebuilder:validation:Minimum=1
 	// +optional
-	MaxCount int `json:"maxCount"`
+	MaxCount int `json:"maxCount,omitzero"`
 }
 
 // ModelStatus is the spec for a Model resource.

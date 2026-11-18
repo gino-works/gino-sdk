@@ -14,8 +14,9 @@ import (
 type ModelLoadSpecApplyConfiguration struct {
 	// MaxWait is how long the loader holds a batch open waiting for more documents. It is capped so
 	// that the loader's consumer ack wait can be a constant that always exceeds it.
-	MaxWait  *metav1.Duration `json:"maxWait,omitempty"`
-	MaxCount *int             `json:"maxCount,omitempty"`
+	MaxWait *metav1.Duration `json:"maxWait,omitempty"`
+	// MaxCount is how many documents the loader batches before loading; whichever of MaxWait or MaxCount is hit first wins.
+	MaxCount *int `json:"maxCount,omitempty"`
 }
 
 // ModelLoadSpecApplyConfiguration constructs a declarative configuration of the ModelLoadSpec type for use with
