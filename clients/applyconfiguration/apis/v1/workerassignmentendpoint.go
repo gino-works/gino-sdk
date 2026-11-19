@@ -18,6 +18,9 @@ type WorkerAssignmentEndpointApplyConfiguration struct {
 	Location *string `json:"location,omitempty"`
 	// LocationType is the resolved location type (if set).
 	LocationType *string `json:"locationType,omitempty"`
+	// Cluster is the cluster that collects the endpoint: where its collection (sessions, probes)
+	// originates from -- e.g. the source of a latency measurement.
+	Cluster *string `json:"cluster,omitempty"`
 	// Host is the host to connect to for this endpoint.
 	Host *string `json:"host,omitempty"`
 	// Vendor, Platform and Profile are the endpoint's resolved identity. They ride on every
@@ -72,6 +75,14 @@ func (b *WorkerAssignmentEndpointApplyConfiguration) WithLocation(value string) 
 // If called multiple times, the LocationType field is set to the value of the last call.
 func (b *WorkerAssignmentEndpointApplyConfiguration) WithLocationType(value string) *WorkerAssignmentEndpointApplyConfiguration {
 	b.LocationType = &value
+	return b
+}
+
+// WithCluster sets the Cluster field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Cluster field is set to the value of the last call.
+func (b *WorkerAssignmentEndpointApplyConfiguration) WithCluster(value string) *WorkerAssignmentEndpointApplyConfiguration {
+	b.Cluster = &value
 	return b
 }
 

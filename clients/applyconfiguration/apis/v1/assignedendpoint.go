@@ -49,6 +49,14 @@ func (b *AssignedEndpointApplyConfiguration) WithLocationType(value string) *Ass
 	return b
 }
 
+// WithCluster sets the Cluster field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Cluster field is set to the value of the last call.
+func (b *AssignedEndpointApplyConfiguration) WithCluster(value string) *AssignedEndpointApplyConfiguration {
+	b.WorkerAssignmentEndpointApplyConfiguration.Cluster = &value
+	return b
+}
+
 // WithHost sets the Host field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Host field is set to the value of the last call.

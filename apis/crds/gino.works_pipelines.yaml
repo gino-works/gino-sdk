@@ -1028,6 +1028,11 @@ spec:
                           description: AssignedEndpoint is one endpoint's worth of
                             work for one collector kind.
                           properties:
+                            cluster:
+                              description: |-
+                                Cluster is the cluster that collects the endpoint: where its collection (sessions, probes)
+                                originates from -- e.g. the source of a latency measurement.
+                              type: string
                             credentials:
                               description: |-
                                 Credentials names the Secret in the endpoint's (and so the worker's) namespace holding this

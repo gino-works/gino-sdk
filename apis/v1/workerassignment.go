@@ -75,6 +75,10 @@ type WorkerAssignmentEndpoint struct {
 	// LocationType is the resolved location type (if set).
 	// +optional
 	LocationType string `json:"locationType,omitempty"`
+	// Cluster is the cluster that collects the endpoint: where its collection (sessions, probes)
+	// originates from -- e.g. the source of a latency measurement.
+	// +optional
+	Cluster string `json:"cluster,omitempty"`
 	// Host is the host to connect to for this endpoint.
 	Host string `json:"host"`
 	// Vendor, Platform and Profile are the endpoint's resolved identity. They ride on every
