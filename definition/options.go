@@ -47,3 +47,12 @@ func WithEndpointGroups(groups []ginosdkapisv1.EndpointGroup) Option {
 		}
 	}
 }
+
+// WithPipelines registers pipelines to the registry.
+func WithPipelines(pipelines []ginosdkapisv1.Pipeline) Option {
+	return func(r *Registry) {
+		for idx := range pipelines {
+			r.pipelines[pipelines[idx].Name] = pipelines[idx]
+		}
+	}
+}
