@@ -206,7 +206,12 @@ func (r *Registry) Manifests() Manifests {
 				cr.Spec.TargetVersion = m.Version
 			}
 
-			mv := ginosdkapisv1.ModelVersion{Version: m.Version}
+			mv := ginosdkapisv1.ModelVersion{
+				Version: m.Version,
+				EnrichSpec: ginosdkapisv1.ModelEnrichSpec{
+					Emit: m.Emit,
+				},
+			}
 
 			for _, in := range m.Inputs {
 				mi := ginosdkapisv1.ModelInput{

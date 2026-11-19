@@ -4,6 +4,15 @@ import (
 	apimachineryapismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// EnrichEmit is when a model version's document is emitted.
+type EnrichEmit string
+
+// enumerations of EnrichEmit.
+const (
+	EnrichEmitAllRefreshed EnrichEmit = "allRefreshed"
+	EnrichEmitAnyRefreshed EnrichEmit = "anyRefreshed"
+)
+
 // Model is an object that holds information about a gino model -- the actual thing that we are
 // trying to produce -- the schema that gets written into caches/databases.
 // Short name gm -> "gino model".
@@ -46,7 +55,10 @@ type ModelVersion struct {
 	Inputs  []ModelInput `json:"inputs"`
 	// +kubebuilder:default={}
 	// +optional
-	LoadSpec ModelLoadSpec `json:"loadSpec"`
+	EnrichSpec ModelEnrichSpec `json:"enrichSpec,omitzero"`
+	// +kubebuilder:default={}
+	// +optional
+	LoadSpec ModelLoadSpec `json:"loadSpec,omitzero"`
 }
 
 // ModelInput defines an input this model wants -- the input name and when/how often it wants the
@@ -63,6 +75,18 @@ type ModelInput struct {
 type ModelRequirement struct {
 	Freshness *apimachineryapismetav1.Duration `json:"freshness,omitempty"`
 	At        *string                          `json:"at,omitempty"`
+}
+
+// ModelEnrichSpec defines when the enricher produces a document for this model version.
+type ModelEnrichSpec struct {
+	// Emit is when a document is enriched and published once every input has arrived at least
+	// once: allRefreshed waits until every input has been collected again since the last
+	// document (one document per full cycle); anyRefreshed emits on every arrival (freshest
+	// values, a document per input arrival).
+	// +kubebuilder:validation:Enum=allRefreshed;anyRefreshed
+	// +kubebuilder:default=allRefreshed
+	// +optional
+	Emit EnrichEmit `json:"emit,omitempty"`
 }
 
 // ModelLoadSpec defines the criteria for when a loader passes the received enriched messages to

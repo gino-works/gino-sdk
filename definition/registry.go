@@ -79,6 +79,20 @@ func New(
 			}
 		}
 
+		switch m.Emit {
+		case "", ginosdkapisv1.EnrichEmitAllRefreshed, ginosdkapisv1.EnrichEmitAnyRefreshed:
+		default:
+			return nil, fmt.Errorf(
+				"%w: model %s/%s emit %q is not one of %q, %q",
+				ErrInvalid,
+				m.Name,
+				m.Version,
+				m.Emit,
+				ginosdkapisv1.EnrichEmitAllRefreshed,
+				ginosdkapisv1.EnrichEmitAnyRefreshed,
+			)
+		}
+
 		r.models[m.Name] = append(r.models[m.Name], m)
 	}
 

@@ -7,9 +7,10 @@ package v1
 //
 // ModelVersion holds a version of the Model.
 type ModelVersionApplyConfiguration struct {
-	Version  *string                          `json:"version,omitempty"`
-	Inputs   []ModelInputApplyConfiguration   `json:"inputs,omitempty"`
-	LoadSpec *ModelLoadSpecApplyConfiguration `json:"loadSpec,omitempty"`
+	Version    *string                            `json:"version,omitempty"`
+	Inputs     []ModelInputApplyConfiguration     `json:"inputs,omitempty"`
+	EnrichSpec *ModelEnrichSpecApplyConfiguration `json:"enrichSpec,omitempty"`
+	LoadSpec   *ModelLoadSpecApplyConfiguration   `json:"loadSpec,omitempty"`
 }
 
 // ModelVersionApplyConfiguration constructs a declarative configuration of the ModelVersion type for use with
@@ -36,6 +37,14 @@ func (b *ModelVersionApplyConfiguration) WithInputs(values ...*ModelInputApplyCo
 		}
 		b.Inputs = append(b.Inputs, *values[i])
 	}
+	return b
+}
+
+// WithEnrichSpec sets the EnrichSpec field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the EnrichSpec field is set to the value of the last call.
+func (b *ModelVersionApplyConfiguration) WithEnrichSpec(value *ModelEnrichSpecApplyConfiguration) *ModelVersionApplyConfiguration {
+	b.EnrichSpec = value
 	return b
 }
 

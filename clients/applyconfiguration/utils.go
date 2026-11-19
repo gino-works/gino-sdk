@@ -86,6 +86,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apisv1.LocationTemplateApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("Model"):
 		return &apisv1.ModelApplyConfiguration{}
+	case v1.SchemeGroupVersion.WithKind("ModelEnrichSpec"):
+		return &apisv1.ModelEnrichSpecApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("ModelInput"):
 		return &apisv1.ModelInputApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("ModelLoadSpec"):

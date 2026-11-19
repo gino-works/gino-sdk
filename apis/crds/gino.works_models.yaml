@@ -55,6 +55,23 @@ spec:
                 items:
                   description: ModelVersion holds a version of the Model.
                   properties:
+                    enrichSpec:
+                      default: {}
+                      description: ModelEnrichSpec defines when the enricher produces
+                        a document for this model version.
+                      properties:
+                        emit:
+                          default: allRefreshed
+                          description: |-
+                            Emit is when a document is enriched and published once every input has arrived at least
+                            once: AllRefreshed waits until every input has been collected again since the last
+                            document (one document per full cycle); AnyRefreshed emits on every arrival (freshest
+                            values, a document per input arrival).
+                          enum:
+                          - allRefreshed
+                          - anyRefreshed
+                          type: string
+                      type: object
                     inputs:
                       items:
                         description: |-
