@@ -13,9 +13,10 @@ type Model struct {
 	Version  string
 	IsTarget bool
 	Inputs   []ModelInput
-	// Emit is when the enricher emits a document for this version, see ModelEnrichSpec. Empty
-	// leaves it to the api server's default (allRefreshed: one document per full cycle).
-	Emit   ginosdkapisv1.EnrichEmit
+	// Emit is when the enricher emits a document for this version, see ModelEnrichEmitSpec. The
+	// zero value leaves it to the api server's default (allRefreshed: one document per full
+	// cycle); to emit on particular inputs set Type to EnrichEmitInputs and list them.
+	Emit   ginosdkapisv1.ModelEnrichEmitSpec
 	Enrich Enrich
 	Load   Load
 }

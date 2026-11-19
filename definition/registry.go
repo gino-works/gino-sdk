@@ -3,6 +3,7 @@ package definition
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	ginosdkapisv1 "github.com/gino-works/gino-sdk/apis/v1"
 )
@@ -79,18 +80,9 @@ func New(
 			}
 		}
 
-		switch m.Emit {
-		case "", ginosdkapisv1.EnrichEmitAllRefreshed, ginosdkapisv1.EnrichEmitAnyRefreshed:
-		default:
-			return nil, fmt.Errorf(
-				"%w: model %s/%s emit %q is not one of %q, %q",
-				ErrInvalid,
-				m.Name,
-				m.Version,
-				m.Emit,
-				ginosdkapisv1.EnrichEmitAllRefreshed,
-				ginosdkapisv1.EnrichEmitAnyRefreshed,
-			)
+		err := validateEmit(&m)
+		if err != nil {
+			return nil, fmt.Errorf("%w: model %s/%s: %w", ErrInvalid, m.Name, m.Version, err)
 		}
 
 		r.models[m.Name] = append(r.models[m.Name], m)
@@ -115,4 +107,49 @@ func New(
 	}
 
 	return r, nil
+}
+
+func validateEmit(m *Model) error {
+	switch m.Emit.Type {
+	case "", ginosdkapisv1.EnrichEmitAllRefreshed, ginosdkapisv1.EnrichEmitAnyRefreshed:
+		if len(m.Emit.ModelInputs) > 0 {
+			return fmt.Errorf(
+				"emit inputs are only allowed with emit type %q",
+				ginosdkapisv1.EnrichEmitInputs,
+			)
+		}
+
+		return nil
+	case ginosdkapisv1.EnrichEmitInputs:
+		if len(m.Emit.ModelInputs) == 0 {
+			return fmt.Errorf(
+				"emit type %q needs at least one input",
+				ginosdkapisv1.EnrichEmitInputs,
+			)
+		}
+	default:
+		return fmt.Errorf(
+			"emit type %q is not one of %q, %q, %q",
+			m.Emit.Type,
+			ginosdkapisv1.EnrichEmitAllRefreshed,
+			ginosdkapisv1.EnrichEmitAnyRefreshed,
+			ginosdkapisv1.EnrichEmitInputs,
+		)
+	}
+
+	seen := make(map[string]bool, len(m.Emit.ModelInputs))
+
+	for _, name := range m.Emit.ModelInputs {
+		if seen[name] {
+			return fmt.Errorf("emit input %q is listed more than once", name)
+		}
+
+		seen[name] = true
+
+		if !slices.ContainsFunc(m.Inputs, func(in ModelInput) bool { return in.Name == name }) {
+			return fmt.Errorf("emit input %q is not an input of the model", name)
+		}
+	}
+
+	return nil
 }

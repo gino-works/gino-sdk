@@ -4,13 +4,15 @@ import (
 	apimachineryapismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EnrichEmit is when a model version's document is emitted.
+// EnrichEmit is when a model version's document is emitted, see ModelEnrichEmitSpec.
+// +kubebuilder:validation:Enum=allRefreshed;anyRefreshed;inputs
 type EnrichEmit string
 
 // enumerations of EnrichEmit.
 const (
 	EnrichEmitAllRefreshed EnrichEmit = "allRefreshed"
 	EnrichEmitAnyRefreshed EnrichEmit = "anyRefreshed"
+	EnrichEmitInputs       EnrichEmit = "inputs"
 )
 
 // Model is an object that holds information about a gino model -- the actual thing that we are
@@ -50,9 +52,12 @@ type ModelSpec struct {
 }
 
 // ModelVersion holds a version of the Model.
+// +kubebuilder:validation:XValidation:rule="!has(self.enrichSpec) || !has(self.enrichSpec.emit) || !has(self.enrichSpec.emit.inputs) || self.enrichSpec.emit.inputs.all(i, self.inputs.exists(x, x.name == i))",message="enrichSpec.emit.inputs may only name inputs of this version"
 type ModelVersion struct {
-	Version string       `json:"version"`
-	Inputs  []ModelInput `json:"inputs"`
+	Version string `json:"version"`
+	// Inputs are every input this version needs; all are required.
+	// +kubebuilder:validation:MaxItems=64
+	Inputs []ModelInput `json:"inputs"`
 	// +kubebuilder:default={}
 	// +optional
 	EnrichSpec ModelEnrichSpec `json:"enrichSpec,omitzero"`
@@ -65,6 +70,8 @@ type ModelVersion struct {
 // input.
 type ModelInput struct {
 	// Name is the name of the input this model wants.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=63
 	Name string `json:"name"`
 	// Require defines when or how fresh the model requires this input to be.
 	Require ModelRequirement `json:"require"`
@@ -79,14 +86,33 @@ type ModelRequirement struct {
 
 // ModelEnrichSpec defines when the enricher produces a document for this model version.
 type ModelEnrichSpec struct {
-	// Emit is when a document is enriched and published once every input has arrived at least
-	// once: allRefreshed waits until every input has been collected again since the last
-	// document (one document per full cycle); anyRefreshed emits on every arrival (freshest
-	// values, a document per input arrival).
-	// +kubebuilder:validation:Enum=allRefreshed;anyRefreshed
+	// Emit is when a document is enriched and published.
+	// +kubebuilder:default={}
+	// +optional
+	Emit ModelEnrichEmitSpec `json:"emit,omitzero"`
+}
+
+// ModelEnrichEmitSpec is when a document is enriched and published. Whatever the type, nothing is
+// emitted until every input of the version has arrived at least once.
+// +kubebuilder:validation:XValidation:rule="(has(self.type) && self.type == 'inputs') == (has(self.inputs) && size(self.inputs) > 0)",message="inputs must be set (non empty) when type is inputs, and only then"
+type ModelEnrichEmitSpec struct {
+	// Type is when to emit:
+	//   allRefreshed -- once every input has been collected again since the last document: one
+	//                   document per full collection cycle.
+	//   anyRefreshed -- on every arrival: freshest values, one document per input arrival.
+	//   inputs       -- on every arrival of one of ModelInputs; arrivals of other inputs only
+	//                   update what the next document is built from.
 	// +kubebuilder:default=allRefreshed
 	// +optional
-	Emit EnrichEmit `json:"emit,omitempty"`
+	Type EnrichEmit `json:"type,omitempty"`
+	// ModelInputs are the inputs whose arrival emits a document; set when (and only when) Type is
+	// inputs. Names must be inputs of this model version.
+	// +listType=set
+	// +kubebuilder:validation:MaxItems=64
+	// +kubebuilder:validation:items:MinLength=1
+	// +kubebuilder:validation:items:MaxLength=63
+	// +optional
+	ModelInputs []string `json:"inputs,omitempty"`
 }
 
 // ModelLoadSpec defines the criteria for when a loader passes the received enriched messages to

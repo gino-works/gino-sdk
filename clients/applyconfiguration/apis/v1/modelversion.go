@@ -7,7 +7,8 @@ package v1
 //
 // ModelVersion holds a version of the Model.
 type ModelVersionApplyConfiguration struct {
-	Version    *string                            `json:"version,omitempty"`
+	Version *string `json:"version,omitempty"`
+	// Inputs are every input this version needs; all are required.
 	Inputs     []ModelInputApplyConfiguration     `json:"inputs,omitempty"`
 	EnrichSpec *ModelEnrichSpecApplyConfiguration `json:"enrichSpec,omitempty"`
 	LoadSpec   *ModelLoadSpecApplyConfiguration   `json:"loadSpec,omitempty"`

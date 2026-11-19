@@ -708,13 +708,26 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: status
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.ModelStatus
+- name: com.github.gino-works.gino-sdk.apis.v1.ModelEnrichEmitSpec
+  map:
+    fields:
+    - name: inputs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: type
+      type:
+        namedType: com.github.gino-works.gino-sdk.apis.v1.EnrichEmit
+      default: allRefreshed
 - name: com.github.gino-works.gino-sdk.apis.v1.ModelEnrichSpec
   map:
     fields:
     - name: emit
       type:
-        namedType: com.github.gino-works.gino-sdk.apis.v1.EnrichEmit
-      default: allRefreshed
+        namedType: com.github.gino-works.gino-sdk.apis.v1.ModelEnrichEmitSpec
+      default: {}
 - name: com.github.gino-works.gino-sdk.apis.v1.ModelInput
   map:
     fields:

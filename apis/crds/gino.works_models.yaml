@@ -61,18 +61,44 @@ spec:
                         a document for this model version.
                       properties:
                         emit:
-                          default: allRefreshed
-                          description: |-
-                            Emit is when a document is enriched and published once every input has arrived at least
-                            once: AllRefreshed waits until every input has been collected again since the last
-                            document (one document per full cycle); AnyRefreshed emits on every arrival (freshest
-                            values, a document per input arrival).
-                          enum:
-                          - allRefreshed
-                          - anyRefreshed
-                          type: string
+                          default: {}
+                          description: Emit is when a document is enriched and published.
+                          properties:
+                            inputs:
+                              description: |-
+                                ModelInputs are the inputs whose arrival emits a document; set when (and only when) Type is
+                                inputs. Names must be inputs of this model version.
+                              items:
+                                maxLength: 63
+                                minLength: 1
+                                type: string
+                              maxItems: 64
+                              type: array
+                              x-kubernetes-list-type: set
+                            type:
+                              default: allRefreshed
+                              description: |-
+                                Type is when to emit:
+                                  allRefreshed -- once every input has been collected again since the last document: one
+                                                  document per full collection cycle.
+                                  anyRefreshed -- on every arrival: freshest values, one document per input arrival.
+                                  inputs       -- on every arrival of one of ModelInputs; arrivals of other inputs only
+                                                  update what the next document is built from.
+                              enum:
+                              - allRefreshed
+                              - anyRefreshed
+                              - inputs
+                              type: string
+                          type: object
+                          x-kubernetes-validations:
+                          - message: inputs must be set (non empty) when type is inputs,
+                              and only then
+                            rule: (has(self.type) && self.type == 'inputs') == (has(self.inputs)
+                              && size(self.inputs) > 0)
                       type: object
                     inputs:
+                      description: Inputs are every input this version needs; all
+                        are required.
                       items:
                         description: |-
                           ModelInput defines an input this model wants -- the input name and when/how often it wants the
@@ -81,6 +107,8 @@ spec:
                           name:
                             description: Name is the name of the input this model
                               wants.
+                            maxLength: 63
+                            minLength: 1
                             type: string
                           require:
                             description: Require defines when or how fresh the model
@@ -99,6 +127,7 @@ spec:
                         - name
                         - require
                         type: object
+                      maxItems: 64
                       type: array
                     loadSpec:
                       default: {}
@@ -130,6 +159,11 @@ spec:
                   - inputs
                   - version
                   type: object
+                  x-kubernetes-validations:
+                  - message: enrichSpec.emit.inputs may only name inputs of this version
+                    rule: '!has(self.enrichSpec) || !has(self.enrichSpec.emit) ||
+                      !has(self.enrichSpec.emit.inputs) || self.enrichSpec.emit.inputs.all(i,
+                      self.inputs.exists(x, x.name == i))'
                 maxItems: 16
                 type: array
                 x-kubernetes-list-map-keys:
