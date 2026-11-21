@@ -24,7 +24,7 @@ func NewPipelineResolved() PipelineResolved {
 }
 
 // TargetCount returns total count of target endpoints for this pipeline.
-func (r PipelineResolved) TargetCount() int {
+func (r *PipelineResolved) TargetCount() int {
 	var count int
 
 	for _, kinds := range r.Targets {
