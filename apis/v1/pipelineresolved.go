@@ -23,6 +23,19 @@ func NewPipelineResolved() PipelineResolved {
 	}
 }
 
+// TargetCount returns total count of target endpoints for this pipeline.
+func (r PipelineResolved) TargetCount() int {
+	var count int
+
+	for _, kinds := range r.Targets {
+		for _, endpoints := range kinds {
+			count += len(endpoints)
+		}
+	}
+
+	return count
+}
+
 // ResolvedModel is a fully resolved model.
 type ResolvedModel struct {
 	// Name is the name of the model.
