@@ -693,10 +693,10 @@ spec:
                   targetReplicaMultiplier:
                     default: 25
                     description: |-
-                      TargetReplicaMultiplier determines the replica count for transform, enrich, and load
-                      workers when explicit replica counts are not configured. The replica count is calculated
-                      by dividing the total number of targets collected by the pipeline by this value,
-                      rounding down to the nearest integer.
+                      TargetsPerReplica determines the replica count for transform, enrich, and load
+                      workers when explicit replica counts are not configured. The replica count is
+                      calculated by dividing the total number of pipeline targets by this value,
+                      rounding up to the nearest integer.
                     maximum: 1000
                     minimum: 1
                     type: integer

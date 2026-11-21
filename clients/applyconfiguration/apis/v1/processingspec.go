@@ -7,10 +7,10 @@ package v1
 //
 // ProcessingSpec holds configuration data for the processing tiers.
 type ProcessingSpecApplyConfiguration struct {
-	// TargetReplicaMultiplier determines the replica count for transform, enrich, and load
-	// workers when explicit replica counts are not configured. The replica count is calculated
-	// by dividing the total number of targets collected by the pipeline by this value,
-	// rounding down to the nearest integer.
+	// TargetsPerReplica determines the replica count for transform, enrich, and load
+	// workers when explicit replica counts are not configured. The replica count is
+	// calculated by dividing the total number of pipeline targets by this value,
+	// rounding up to the nearest integer.
 	TargetReplicaMultiplier *int                             `json:"targetReplicaMultiplier,omitempty"`
 	Transform               *TransformSpecApplyConfiguration `json:"transform,omitempty"`
 	Enrich                  *EnrichSpecApplyConfiguration    `json:"enrich,omitempty"`
