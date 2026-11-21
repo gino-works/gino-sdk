@@ -2,6 +2,15 @@ package v1
 
 // ProcessingSpec holds configuration data for the processing tiers.
 type ProcessingSpec struct {
+	// TargetReplicaMultiplier determines the replica count for transform, enrich, and load
+	// workers when explicit replica counts are not configured. The replica count is calculated
+	// by dividing the total number of targets collected by the pipeline by this value,
+	// rounding down to the nearest integer.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=1000
+	// +kubebuilder:default=25
+	TargetReplicaMultiplier *int `json:"targetReplicaMultiplier,omitempty"`
+
 	Transform TransformSpec `json:"transform"`
 	Enrich    EnrichSpec    `json:"enrich"`
 	Load      LoadSpec      `json:"load"`

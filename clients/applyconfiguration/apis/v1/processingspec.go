@@ -7,15 +7,28 @@ package v1
 //
 // ProcessingSpec holds configuration data for the processing tiers.
 type ProcessingSpecApplyConfiguration struct {
-	Transform *TransformSpecApplyConfiguration `json:"transform,omitempty"`
-	Enrich    *EnrichSpecApplyConfiguration    `json:"enrich,omitempty"`
-	Load      *LoadSpecApplyConfiguration      `json:"load,omitempty"`
+	// TargetReplicaMultiplier determines the replica count for transform, enrich, and load
+	// workers when explicit replica counts are not configured. The replica count is calculated
+	// by dividing the total number of targets collected by the pipeline by this value,
+	// rounding down to the nearest integer.
+	TargetReplicaMultiplier *int                             `json:"targetReplicaMultiplier,omitempty"`
+	Transform               *TransformSpecApplyConfiguration `json:"transform,omitempty"`
+	Enrich                  *EnrichSpecApplyConfiguration    `json:"enrich,omitempty"`
+	Load                    *LoadSpecApplyConfiguration      `json:"load,omitempty"`
 }
 
 // ProcessingSpecApplyConfiguration constructs a declarative configuration of the ProcessingSpec type for use with
 // apply.
 func ProcessingSpec() *ProcessingSpecApplyConfiguration {
 	return &ProcessingSpecApplyConfiguration{}
+}
+
+// WithTargetReplicaMultiplier sets the TargetReplicaMultiplier field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TargetReplicaMultiplier field is set to the value of the last call.
+func (b *ProcessingSpecApplyConfiguration) WithTargetReplicaMultiplier(value int) *ProcessingSpecApplyConfiguration {
+	b.TargetReplicaMultiplier = &value
+	return b
 }
 
 // WithTransform sets the Transform field in the declarative configuration to the given value

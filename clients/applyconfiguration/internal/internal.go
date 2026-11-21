@@ -991,6 +991,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: load
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.LoadSpec
+    - name: targetReplicaMultiplier
+      type:
+        scalar: numeric
+      default: 25
     - name: transform
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.TransformSpec
