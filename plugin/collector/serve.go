@@ -32,7 +32,8 @@ func decodeEndpoint(b []byte) (*ginosdkapisv1.WorkerAssignmentEndpoint, string, 
 	return endpoint, endpoint.Namespace + "/" + endpoint.Name, nil
 }
 
-// NewWorker returns a Worker that the server can manage.
+// NewWorker returns a Worker that the server can manage. l already carries the endpoint
+// ("endpoint": namespace/name), so a worker only adds what it knows beyond that.
 type NewWorker func(
 	processCtx context.Context,
 	l *slog.Logger,
@@ -169,7 +170,7 @@ func (s *server) Open(
 	w, err := s.newWorker( //nolint: contextcheck
 		// rpc ctx ends with the rpc; the worker lives with the server
 		s.ctx,
-		s.l.WithGroup(k),
+		s.l.With(slog.String("endpoint", k)),
 		endpoint,
 		req.GetCredentials(),
 	)

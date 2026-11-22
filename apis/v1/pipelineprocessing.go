@@ -48,8 +48,11 @@ type LoadSpec struct {
 	// +optional
 	Replicas *int32 `json:"replicas,omitempty"`
 
-	// Secrets hold any secrets required to be mounted on the loader -- assumed to be in the main
-	// gino namespace where the loader will be running.
+	// Secrets are the names of secrets to mount on the loader, each at /secrets/<name>/<key>. A
+	// name is a Secret in the manager namespace (where the loader runs) or, when there is none, one
+	// replicated there from the manager's sources -- its mount (--replicate-dir, typically a csi
+	// secrets mount) or Secrets labelled for replication -- so credentials need not be placed per
+	// pipeline.
 	Secrets []string `json:"secrets,omitempty"`
 
 	// ExtraEnv are extra env vars that will be mounted on the loader.
