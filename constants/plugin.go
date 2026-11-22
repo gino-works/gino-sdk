@@ -10,4 +10,5 @@ const (
 	GinoPluginSocketPath                  = "/tmp/gino.sock"
 	GinoPluginSocketEnv                   = "GINO_PLUGIN_SOCKET"
 	GinoPluginSocketPerms     os.FileMode = 0o600
+	GinoPluginLogLevelEnv                 = "GINO_PLUGIN_LOG_LEVEL"
 )

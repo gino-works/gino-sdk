@@ -8,7 +8,8 @@ const (
 	// ConditionUnschedulable: used for pipeline targets that cannot be scheduled.
 	ConditionUnschedulable = "Unschedulable"
 	// ConditionSecretsReplicated: every secret a managed location namespace asks for exists in
-	// a source and has been copied in.
+	// a source and has been copied in; on a pipeline, every secret its tiers mount is in the
+	// manager namespace (already there, or replicated from the manager's replicate dir).
 	ConditionSecretsReplicated = "SecretsReplicated"
 	// ConditionReady: the assignment's worker Deployment exists and is available -- set by
 	// whichever controller runs it (core for core assignments, the remote via the relay for
