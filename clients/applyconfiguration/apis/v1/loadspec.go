@@ -13,15 +13,7 @@ import (
 type LoadSpecApplyConfiguration struct {
 	WorkerSpecApplyConfiguration        `json:""`
 	WorkerLoggingSpecApplyConfiguration `json:""`
-	Replicas                            *int32 `json:"replicas,omitempty"`
-	// Secrets are the names of secrets to mount on the loader, each at /secrets/<name>/<key>. A
-	// name is a Secret in the manager namespace (where the loader runs) or, when there is none, one
-	// replicated there from the manager's mount (--replicate-dir, typically a csi secrets mount),
-	// so credentials need not be placed per pipeline. The pipeline's SecretsReplicated condition
-	// says when one is neither.
-	Secrets []string `json:"secrets,omitempty"`
-	// ExtraEnv are extra env vars that will be mounted on the loader.
-	ExtraEnv []EnvVarApplyConfiguration `json:"extraEnv,omitempty"`
+	WorkerAugmentsApplyConfiguration    `json:""`
 }
 
 // LoadSpecApplyConfiguration constructs a declarative configuration of the LoadSpec type for use with
@@ -74,7 +66,7 @@ func (b *LoadSpecApplyConfiguration) WithLogRecorderMode(value bool) *LoadSpecAp
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Replicas field is set to the value of the last call.
 func (b *LoadSpecApplyConfiguration) WithReplicas(value int32) *LoadSpecApplyConfiguration {
-	b.Replicas = &value
+	b.WorkerAugmentsApplyConfiguration.Replicas = &value
 	return b
 }
 
@@ -83,7 +75,7 @@ func (b *LoadSpecApplyConfiguration) WithReplicas(value int32) *LoadSpecApplyCon
 // If called multiple times, values provided by each call will be appended to the Secrets field.
 func (b *LoadSpecApplyConfiguration) WithSecrets(values ...string) *LoadSpecApplyConfiguration {
 	for i := range values {
-		b.Secrets = append(b.Secrets, values[i])
+		b.WorkerAugmentsApplyConfiguration.Secrets = append(b.WorkerAugmentsApplyConfiguration.Secrets, values[i])
 	}
 	return b
 }
@@ -96,7 +88,7 @@ func (b *LoadSpecApplyConfiguration) WithExtraEnv(values ...*EnvVarApplyConfigur
 		if values[i] == nil {
 			panic("nil value passed to WithExtraEnv")
 		}
-		b.ExtraEnv = append(b.ExtraEnv, *values[i])
+		b.WorkerAugmentsApplyConfiguration.ExtraEnv = append(b.WorkerAugmentsApplyConfiguration.ExtraEnv, *values[i])
 	}
 	return b
 }

@@ -100,3 +100,21 @@ type WorkerLoggingSpec struct {
 	// +optional
 	LogRecorderMode bool `json:"logRecorderMode,omitempty"`
 }
+
+// WorkerAugments holds common augments (secrets/env/tbd) for workers.
+type WorkerAugments struct {
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:default=1
+	// +optional
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Secrets are the names of secrets to mount on the loader, each at /secrets/<name>/<key>. A
+	// name is a Secret in the manager namespace (where the loader runs) or, when there is none, one
+	// replicated there from the manager's mount (--replicate-dir, typically a csi secrets mount),
+	// so credentials need not be placed per pipeline. The pipeline's SecretsReplicated condition
+	// says when one is neither.
+	Secrets []string `json:"secrets,omitempty"`
+
+	// ExtraEnv are extra env vars that will be mounted on the loader.
+	ExtraEnv []EnvVar `json:"extraEnv,omitempty"`
+}

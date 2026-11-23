@@ -148,6 +148,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apisv1.WorkerAssignmentSpecApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("WorkerAssignmentStatus"):
 		return &apisv1.WorkerAssignmentStatusApplyConfiguration{}
+	case v1.SchemeGroupVersion.WithKind("WorkerAugments"):
+		return &apisv1.WorkerAugmentsApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("WorkerLoggingSpec"):
 		return &apisv1.WorkerLoggingSpecApplyConfiguration{}
 	case v1.SchemeGroupVersion.WithKind("WorkerSpec"):

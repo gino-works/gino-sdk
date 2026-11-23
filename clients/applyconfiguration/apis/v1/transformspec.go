@@ -13,7 +13,7 @@ import (
 type TransformSpecApplyConfiguration struct {
 	WorkerSpecApplyConfiguration        `json:""`
 	WorkerLoggingSpecApplyConfiguration `json:""`
-	Replicas                            *int32 `json:"replicas,omitempty"`
+	WorkerAugmentsApplyConfiguration    `json:""`
 }
 
 // TransformSpecApplyConfiguration constructs a declarative configuration of the TransformSpec type for use with
@@ -66,6 +66,29 @@ func (b *TransformSpecApplyConfiguration) WithLogRecorderMode(value bool) *Trans
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Replicas field is set to the value of the last call.
 func (b *TransformSpecApplyConfiguration) WithReplicas(value int32) *TransformSpecApplyConfiguration {
-	b.Replicas = &value
+	b.WorkerAugmentsApplyConfiguration.Replicas = &value
+	return b
+}
+
+// WithSecrets adds the given value to the Secrets field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Secrets field.
+func (b *TransformSpecApplyConfiguration) WithSecrets(values ...string) *TransformSpecApplyConfiguration {
+	for i := range values {
+		b.WorkerAugmentsApplyConfiguration.Secrets = append(b.WorkerAugmentsApplyConfiguration.Secrets, values[i])
+	}
+	return b
+}
+
+// WithExtraEnv adds the given value to the ExtraEnv field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ExtraEnv field.
+func (b *TransformSpecApplyConfiguration) WithExtraEnv(values ...*EnvVarApplyConfiguration) *TransformSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithExtraEnv")
+		}
+		b.WorkerAugmentsApplyConfiguration.ExtraEnv = append(b.WorkerAugmentsApplyConfiguration.ExtraEnv, *values[i])
+	}
 	return b
 }

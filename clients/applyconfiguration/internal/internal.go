@@ -432,6 +432,12 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.gino-works.gino-sdk.apis.v1.EnrichSpec
   map:
     fields:
+    - name: extraEnv
+      type:
+        list:
+          elementType:
+            namedType: com.github.gino-works.gino-sdk.apis.v1.EnvVar
+          elementRelationship: atomic
     - name: image
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.Image
@@ -452,6 +458,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resources
       type:
         namedType: io.k8s.api.core.v1.ResourceRequirements
+    - name: secrets
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
 - name: com.github.gino-works.gino-sdk.apis.v1.EnvVar
   map:
     fields:
@@ -1076,6 +1088,12 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.gino-works.gino-sdk.apis.v1.TransformSpec
   map:
     fields:
+    - name: extraEnv
+      type:
+        list:
+          elementType:
+            namedType: com.github.gino-works.gino-sdk.apis.v1.EnvVar
+          elementRelationship: atomic
     - name: image
       type:
         namedType: com.github.gino-works.gino-sdk.apis.v1.Image
@@ -1096,6 +1114,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resources
       type:
         namedType: io.k8s.api.core.v1.ResourceRequirements
+    - name: secrets
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
 - name: com.github.gino-works.gino-sdk.apis.v1.UnschedulableReason
   scalar: string
 - name: com.github.gino-works.gino-sdk.apis.v1.UnscheduledEndpoint
