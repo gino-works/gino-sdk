@@ -428,6 +428,14 @@ spec:
                   description: PipelineModel is a model the Pipeline is working to
                     build.
                   properties:
+                    freshnessPercent:
+                      description: |-
+                        FreshnessPercent is applied to the freshness values for all inputs in the target model --
+                        1 == 1% of the model's freshness value, 100 == 100%, 200 == 200%. This lets you scale the
+                        rate of collection but keeps things proportional to what the model defined. The "at" style
+                        requirements (cron style) are unaffected.
+                      minimum: 1
+                      type: integer
                     name:
                       description: Name of the model.
                       type: string

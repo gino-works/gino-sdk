@@ -11,6 +11,11 @@ type PipelineModelApplyConfiguration struct {
 	Name *string `json:"name,omitempty"`
 	// Version the version of the model -- defaults to the models target version if unset.
 	Version *string `json:"version,omitempty"`
+	// FreshnessPercent is applied to the freshness values for all inputs in the target model --
+	// 1 == 1% of the model's freshness value, 100 == 100%, 200 == 200%. This lets you scale the
+	// rate of collection but keeps things proportional to what the model defined. The "at" style
+	// requirements (cron style) are unaffected.
+	FreshnessPercent *int `json:"freshnessPercent,omitempty"`
 }
 
 // PipelineModelApplyConfiguration constructs a declarative configuration of the PipelineModel type for use with
@@ -32,5 +37,13 @@ func (b *PipelineModelApplyConfiguration) WithName(value string) *PipelineModelA
 // If called multiple times, the Version field is set to the value of the last call.
 func (b *PipelineModelApplyConfiguration) WithVersion(value string) *PipelineModelApplyConfiguration {
 	b.Version = &value
+	return b
+}
+
+// WithFreshnessPercent sets the FreshnessPercent field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the FreshnessPercent field is set to the value of the last call.
+func (b *PipelineModelApplyConfiguration) WithFreshnessPercent(value int) *PipelineModelApplyConfiguration {
+	b.FreshnessPercent = &value
 	return b
 }

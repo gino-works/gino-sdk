@@ -65,6 +65,13 @@ type PipelineModel struct {
 	// Version the version of the model -- defaults to the models target version if unset.
 	// +optional
 	Version string `json:"version,omitempty"`
+	// FreshnessPercent is applied to the freshness values for all inputs in the target model --
+	// 1 == 1% of the model's freshness value, 100 == 100%, 200 == 200%. This lets you scale the
+	// rate of collection but keeps things proportional to what the model defined. The "at" style
+	// requirements (cron style) are unaffected.
+	// +kubebuilder:validation:Minimum=1
+	// +optional
+	FreshnessPercent *int `json:"freshnessPercent,omitempty"`
 }
 
 // PipelineStatus is the spec for a Pipeline resource.

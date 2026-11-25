@@ -839,6 +839,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.gino-works.gino-sdk.apis.v1.PipelineModel
   map:
     fields:
+    - name: freshnessPercent
+      type:
+        scalar: numeric
     - name: name
       type:
         scalar: string
