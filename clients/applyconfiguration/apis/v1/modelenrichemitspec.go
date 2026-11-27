@@ -9,8 +9,8 @@ import (
 // ModelEnrichEmitSpecApplyConfiguration represents a declarative configuration of the ModelEnrichEmitSpec type for use
 // with apply.
 //
-// ModelEnrichEmitSpec is when a document is enriched and published. Whatever the type, nothing is
-// emitted until every input of the version has arrived at least once.
+// ModelEnrichEmitSpec is when a document is enriched (except passthrough) and published. Whatever
+// the type, nothing is emitted until every input of the version has arrived at least once.
 type ModelEnrichEmitSpecApplyConfiguration struct {
 	// Type is when to emit:
 	// allRefreshed -- once every input has been collected again since the last document: one
@@ -18,8 +18,8 @@ type ModelEnrichEmitSpecApplyConfiguration struct {
 	// anyRefreshed -- on every arrival: freshest values, one document per input arrival.
 	// inputs       -- on every arrival of one of ModelInputs; arrivals of other inputs only
 	// update what the next document is built from.
-	// passthrough  -- basically no cache write/input lookups involved, gino side will just pass
-	// it to the enricher plugin as is and move on.
+	// passthrough  -- basically no cache write/input lookups involved, gino side will simply emit
+	// the message straight back out for a loader to pick it up.
 	Type *apisv1.EnrichEmit `json:"type,omitempty"`
 	// ModelInputs are the inputs whose arrival emits a document; set when (and only when) Type is
 	// inputs. Names must be inputs of this model version.

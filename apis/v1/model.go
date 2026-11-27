@@ -5,7 +5,7 @@ import (
 )
 
 // EnrichEmit is when a model version's document is emitted, see ModelEnrichEmitSpec.
-// +kubebuilder:validation:Enum=allRefreshed;anyRefreshed;inputs
+// +kubebuilder:validation:Enum=allRefreshed;anyRefreshed;inputs;passthrough
 type EnrichEmit string
 
 // enumerations of EnrichEmit.
@@ -13,6 +13,7 @@ const (
 	EnrichEmitAllRefreshed EnrichEmit = "allRefreshed"
 	EnrichEmitAnyRefreshed EnrichEmit = "anyRefreshed"
 	EnrichEmitInputs       EnrichEmit = "inputs"
+	EnrichEmitPassthrough  EnrichEmit = "passthrough"
 )
 
 // Model is an object that holds information about a gino model -- the actual thing that we are
@@ -53,6 +54,7 @@ type ModelSpec struct {
 
 // ModelVersion holds a version of the Model.
 // +kubebuilder:validation:XValidation:rule="!has(self.enrichSpec) || !has(self.enrichSpec.emit) || !has(self.enrichSpec.emit.inputs) || self.enrichSpec.emit.inputs.all(i, self.inputs.exists(x, x.name == i))",message="enrichSpec.emit.inputs may only name inputs of this version"
+// +kubebuilder:validation:XValidation:rule="!has(self.enrichSpec) || !has(self.enrichSpec.emit) || !has(self.enrichSpec.emit.type) || self.enrichSpec.emit.type != 'passthrough' || size(self.inputs) == 1",message="passthrough models take exactly one input"
 type ModelVersion struct {
 	Version string `json:"version"`
 	// Inputs are every input this version needs; all are required.
@@ -92,8 +94,8 @@ type ModelEnrichSpec struct {
 	Emit ModelEnrichEmitSpec `json:"emit,omitzero"`
 }
 
-// ModelEnrichEmitSpec is when a document is enriched and published. Whatever the type, nothing is
-// emitted until every input of the version has arrived at least once.
+// ModelEnrichEmitSpec is when a document is enriched (except passthrough) and published. Whatever
+// the type, nothing is emitted until every input of the version has arrived at least once.
 // +kubebuilder:validation:XValidation:rule="(has(self.type) && self.type == 'inputs') == (has(self.inputs) && size(self.inputs) > 0)",message="inputs must be set (non empty) when type is inputs, and only then"
 type ModelEnrichEmitSpec struct {
 	// Type is when to emit:
@@ -102,8 +104,8 @@ type ModelEnrichEmitSpec struct {
 	//   anyRefreshed -- on every arrival: freshest values, one document per input arrival.
 	//   inputs       -- on every arrival of one of ModelInputs; arrivals of other inputs only
 	//                   update what the next document is built from.
-	//   passthrough  -- basically no cache write/input lookups involved, gino side will just pass
-	//                   it to the enricher plugin as is and move on.
+	//   passthrough  -- basically no cache write/input lookups involved, gino side will simply emit
+	//                   the message straight back out for a loader to pick it up.
 	// +kubebuilder:default=allRefreshed
 	// +optional
 	Type EnrichEmit `json:"type,omitempty"`

@@ -84,12 +84,13 @@ spec:
                                   anyRefreshed -- on every arrival: freshest values, one document per input arrival.
                                   inputs       -- on every arrival of one of ModelInputs; arrivals of other inputs only
                                                   update what the next document is built from.
-                                  passthrough  -- basically no cache write/input lookups involved, gino side will just pass
-                                                  it to the enricher plugin as is and move on.
+                                  passthrough  -- basically no cache write/input lookups involved, gino side will simply emit
+                                                  the message straight back out for a loader to pick it up.
                               enum:
                               - allRefreshed
                               - anyRefreshed
                               - inputs
+                              - passthrough
                               type: string
                           type: object
                           x-kubernetes-validations:
@@ -166,6 +167,10 @@ spec:
                     rule: '!has(self.enrichSpec) || !has(self.enrichSpec.emit) ||
                       !has(self.enrichSpec.emit.inputs) || self.enrichSpec.emit.inputs.all(i,
                       self.inputs.exists(x, x.name == i))'
+                  - message: passthrough models take exactly one input
+                    rule: '!has(self.enrichSpec) || !has(self.enrichSpec.emit) ||
+                      !has(self.enrichSpec.emit.type) || self.enrichSpec.emit.type
+                      != ''passthrough'' || size(self.inputs) == 1'
                 maxItems: 16
                 type: array
                 x-kubernetes-list-map-keys:

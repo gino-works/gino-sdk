@@ -111,11 +111,31 @@ func New(
 
 func validateEmit(m *Model) error {
 	switch m.Emit.Type {
-	case "", ginosdkapisv1.EnrichEmitAllRefreshed, ginosdkapisv1.EnrichEmitAnyRefreshed:
+	case "",
+		ginosdkapisv1.EnrichEmitAllRefreshed,
+		ginosdkapisv1.EnrichEmitAnyRefreshed:
 		if len(m.Emit.ModelInputs) > 0 {
 			return fmt.Errorf(
 				"emit inputs are only allowed with emit type %q",
 				ginosdkapisv1.EnrichEmitInputs,
+			)
+		}
+
+		return nil
+	case ginosdkapisv1.EnrichEmitPassthrough:
+		if len(m.Emit.ModelInputs) > 0 {
+			return fmt.Errorf(
+				"emit inputs are only allowed with emit type %q",
+				ginosdkapisv1.EnrichEmitInputs,
+			)
+		}
+
+		// each arrival goes straight out as the document: there is nothing to assemble it with
+		if len(m.Inputs) != 1 {
+			return fmt.Errorf(
+				"emit type %q takes exactly one input, has %d",
+				ginosdkapisv1.EnrichEmitPassthrough,
+				len(m.Inputs),
 			)
 		}
 
