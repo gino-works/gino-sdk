@@ -121,11 +121,23 @@ spec:
                                 type: string
                               freshness:
                                 type: string
+                              splay:
+                                description: |-
+                                  Splay helps spread out the "at" requirements for the pipeline. Namespace/Name of the endpoint
+                                  is hashed and used as offset from that at time to a max of the splay value.
+                                type: string
+                                x-kubernetes-validations:
+                                - message: splay must be greater than 0 and at most
+                                    24h
+                                  rule: duration(self) > duration('0s') && duration(self)
+                                    <= duration('24h')
                             type: object
                             x-kubernetes-validations:
                             - message: Exactly one requirement type must be specified
                               rule: '(has(self.freshness) ? 1 : 0) + (has(self.at)
                                 ? 1 : 0) == 1'
+                            - message: splay is only allowed with at
+                              rule: '!has(self.splay) || has(self.at)'
                         required:
                         - name
                         - require

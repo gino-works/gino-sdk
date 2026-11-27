@@ -81,9 +81,15 @@ type ModelInput struct {
 
 // ModelRequirement holds info about when/at what time the model wants this input.
 // +kubebuilder:validation:XValidation:rule="(has(self.freshness) ? 1 : 0) + (has(self.at) ? 1 : 0) == 1",message="Exactly one requirement type must be specified"
+// +kubebuilder:validation:XValidation:rule="!has(self.splay) || has(self.at)",message="splay is only allowed with at"
 type ModelRequirement struct {
 	Freshness *apimachineryapismetav1.Duration `json:"freshness,omitempty"`
 	At        *string                          `json:"at,omitempty"`
+	// Splay helps spread out the "at" requirements for the pipeline. Namespace/Name of the endpoint
+	// is hashed and used as offset from that at time to a max of the splay value.
+	// +kubebuilder:validation:XValidation:rule="duration(self) > duration('0s') && duration(self) <= duration('24h')",message="splay must be greater than 0 and at most 24h"
+	// +optional
+	Splay *apimachineryapismetav1.Duration `json:"splay,omitempty"`
 }
 
 // ModelEnrichSpec defines when the enricher produces a document for this model version.

@@ -223,6 +223,10 @@ func (r *Registry) Manifests() Manifests {
 				} else {
 					at := in.At
 					mi.Require.At = &at
+
+					if in.Splay > 0 {
+						mi.Require.Splay = &apimachineryapismetav1.Duration{Duration: in.Splay}
+					}
 				}
 
 				mv.Inputs = append(mv.Inputs, mi)

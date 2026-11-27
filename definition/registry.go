@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"time"
 
 	ginosdkapisv1 "github.com/gino-works/gino-sdk/apis/v1"
 )
@@ -78,6 +79,18 @@ func New(
 					in.Name,
 				)
 			}
+
+			err := validateSplay(in)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"%w: model %s/%s input %q: %w",
+					ErrInvalid,
+					m.Name,
+					m.Version,
+					in.Name,
+					err,
+				)
+			}
 		}
 
 		err := validateEmit(&m)
@@ -107,6 +120,24 @@ func New(
 	}
 
 	return r, nil
+}
+
+// maxSplay is the most an input's collections are spread; the crd's limit too.
+const maxSplay = 24 * time.Hour
+
+// validateSplay checks in's splay: only with at, and within (0, maxSplay]. The cron's own interval
+// is the collector's to cap at -- the sdk does not parse crons.
+func validateSplay(in ModelInput) error {
+	switch {
+	case in.Splay == 0:
+		return nil
+	case in.At == "":
+		return errors.New("splay is only allowed with at")
+	case in.Splay < 0 || in.Splay > maxSplay:
+		return fmt.Errorf("splay must be greater than 0 and at most %s, is %s", maxSplay, in.Splay)
+	default:
+		return nil
+	}
 }
 
 func validateEmit(m *Model) error {

@@ -22,9 +22,11 @@ type Model struct {
 }
 
 // ModelInput is one input a model version wants and how fresh: exactly one of Freshness or At,
-// checked by New.
+// checked by New. Splay (only with At) spreads the collections across endpoints, see
+// ginosdkapisv1.ModelRequirement.
 type ModelInput struct {
 	Name      string
 	Freshness time.Duration
 	At        string
+	Splay     time.Duration
 }

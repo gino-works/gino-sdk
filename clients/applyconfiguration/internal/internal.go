@@ -772,6 +772,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: freshness
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+    - name: splay
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.gino-works.gino-sdk.apis.v1.ModelSpec
   map:
     fields:

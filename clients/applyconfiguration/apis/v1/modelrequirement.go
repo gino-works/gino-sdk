@@ -13,6 +13,9 @@ import (
 type ModelRequirementApplyConfiguration struct {
 	Freshness *metav1.Duration `json:"freshness,omitempty"`
 	At        *string          `json:"at,omitempty"`
+	// Splay helps spread out the "at" requirements for the pipeline. Namespace/Name of the endpoint
+	// is hashed and used as offset from that at time to a max of the splay value.
+	Splay *metav1.Duration `json:"splay,omitempty"`
 }
 
 // ModelRequirementApplyConfiguration constructs a declarative configuration of the ModelRequirement type for use with
@@ -34,5 +37,13 @@ func (b *ModelRequirementApplyConfiguration) WithFreshness(value metav1.Duration
 // If called multiple times, the At field is set to the value of the last call.
 func (b *ModelRequirementApplyConfiguration) WithAt(value string) *ModelRequirementApplyConfiguration {
 	b.At = &value
+	return b
+}
+
+// WithSplay sets the Splay field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Splay field is set to the value of the last call.
+func (b *ModelRequirementApplyConfiguration) WithSplay(value metav1.Duration) *ModelRequirementApplyConfiguration {
+	b.Splay = &value
 	return b
 }
