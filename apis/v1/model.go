@@ -102,6 +102,8 @@ type ModelEnrichEmitSpec struct {
 	//   anyRefreshed -- on every arrival: freshest values, one document per input arrival.
 	//   inputs       -- on every arrival of one of ModelInputs; arrivals of other inputs only
 	//                   update what the next document is built from.
+	//   passthrough  -- basically no cache write/input lookups involved, gino side will just pass
+	//                   it to the enricher plugin as is and move on.
 	// +kubebuilder:default=allRefreshed
 	// +optional
 	Type EnrichEmit `json:"type,omitempty"`
